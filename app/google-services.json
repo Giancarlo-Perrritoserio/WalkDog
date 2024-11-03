@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "498982668652",
+    "project_id": "proyectofinal-32bf6",
+    "storage_bucket": "proyectofinal-32bf6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:498982668652:android:90cd5035f1281f86558b49",
+        "android_client_info": {
+          "package_name": "com.proyecto.WalkDog"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCDdQLwRJbFFx-5aLJnPX6CU6snbFLh6I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
