@@ -1,6 +1,7 @@
 [versions]
 agp = "8.5.2"
 firebaseBom = "33.5.1"
+googleMapsCompose = "2.2.0"
 hiltAndroid = "2.49"
 hiltCompiler = "2.49"
 hiltNavigationCompose = "1.2.0"
@@ -15,7 +16,10 @@ lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.9.3"
 composeBom = "2024.10.01"
 mapsCompose = "4.4.1"
+mapsComposeUtils = "4.4.1"
+mapsComposeV2 = "2.2.1"
 mapsComposeVersion = "4.4.1"
+mapsComposeWidgets = "4.4.1"
 mapsUtilsCompose = "2.5.3"
 mapsUtilsComposeVersion = "2.7.0"
 mapsWidgetsCompose = "2.5.3"
@@ -24,6 +28,7 @@ material = "1.12.0"
 playServicesLocation = "21.3.0"
 playServicesLocationVersion = "21.3.0"
 ui = "1.0.0"
+uiToolingPreview = "1.7.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -49,7 +54,11 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
+maps-compose-utils = { module = "com.google.maps.android:maps-compose-utils", version.ref = "mapsComposeUtils" }
+maps-compose-v2 = { module = "com.google.maps.android:maps-compose-v2", version.ref = "mapsComposeV2" }
+maps-compose-v220 = { module = "com.google.maps.android:maps-compose", version.ref = "googleMapsCompose" }
 maps-compose-v270 = { module = "com.google.maps.android:maps-compose", version.ref = "mapsComposeVersion" }
+maps-compose-widgets = { module = "com.google.maps.android:maps-compose-widgets", version.ref = "mapsComposeWidgets" }
 maps-utils-compose = { module = "com.google.maps.android:maps-utils-compose", version.ref = "mapsUtilsCompose" }
 maps-utils-compose-v270 = { module = "com.google.maps.android:maps-utils-compose", version.ref = "mapsUtilsComposeVersion" }
 maps-widgets-compose = { module = "com.google.maps.android:maps-widgets-compose", version.ref = "mapsWidgetsCompose" }
@@ -58,6 +67,7 @@ material = { module = "com.google.android.material:material", version.ref = "mat
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 play-services-location-v2101 = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocationVersion" }
 ui = { module = "com.some.dependency:ui", version.ref = "ui" }
+ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreview" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -54,6 +54,8 @@ android {
 
 dependencies {
 
+    val mapsComposeVersion = "4.4.1"
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -90,6 +92,17 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
 
-
+    // Google Maps Compose
+    implementation(libs.maps.compose)
+    // Utilidades de Google Maps para Jetpack Compose
+    implementation(libs.maps.compose.utils)
+    // Widgets de Google Maps Compose
+    implementation(libs.maps.compose.widgets)
+    // Google Play Services Location
+    implementation(libs.play.services.location)
+    // UI Dependencies
+    implementation(libs.material)
+    implementation(libs.ui.tooling.preview)
+    implementation(libs.maps.compose.v220)
 }
 

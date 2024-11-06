@@ -15,8 +15,9 @@ import javax.inject.Inject
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
     private val accountService: AccountService,
-    logService: LogService
+    private val logService: LogService // Inyectado y usado
 ) : ViewModel() {
+
     var uiState by mutableStateOf(RegisterUiState())
         private set
 
@@ -43,8 +44,10 @@ class RegisterViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 accountService.createUser(email, password)
+                logService.logEvent("User registered with email: $email") // Ejemplo de uso
                 onSuccess()
             } catch (e: Exception) {
+                logService.logEvent("Registration failed: ${e.message}")
                 onError("Registration failed: ${e.message}")
             }
         }

@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.proyecto.WalkDog.ui.home.HomeScreen
 import com.proyecto.WalkDog.ui.login.LoginScreen
+import com.proyecto.WalkDog.ui.map.MapScreen
 import com.proyecto.WalkDog.ui.register.RegisterScreen
 
 @Composable
@@ -38,6 +39,8 @@ fun NavGraph(navController: NavHostController) {
         composable(route = Screen.Home.route) {
             HomeScreen(navController)
         }
-
+        composable(route = Screen.Map.route) {
+            MapScreen()
+        }
     }
 }
