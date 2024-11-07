@@ -104,5 +104,11 @@ dependencies {
     implementation(libs.material)
     implementation(libs.ui.tooling.preview)
     implementation(libs.maps.compose.v220)
+
+    //dependencias agregadas en parte 3.0
+    implementation(libs.firebase.firestore) // Asegúrate de tener la dependencia de Firebase
+
+    //dependencias parte 3.1
+    implementation(libs.play.services.maps)
 }
 
