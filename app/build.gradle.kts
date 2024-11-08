@@ -110,5 +110,9 @@ dependencies {
 
     //dependencias parte 3.1
     implementation(libs.play.services.maps)
+
+    //dependencias parte 3.2
+    implementation(libs.firebase.storage.ktx)
+
 }
 

@@ -74,6 +74,11 @@ fun HomeScreen(navController: NavHostController, viewModel: MapViewModel = hiltV
                 Button(onClick = { navController.navigate(Screen.RestrictedZones.route) }) {
                     Text(text = "Ver Zonas Restringidas")
                 }
+                Button(onClick = {
+                    navController.navigate(Screen.VoiceRecording.route)
+                }) {
+                    Text("Grabar Audio")
+                }
 
                 Spacer(modifier = Modifier.height(20.dp))
 

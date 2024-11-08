@@ -1,24 +1,34 @@
 package com.proyecto.WalkDog.ui.map
 
+import android.content.Context
+import android.media.MediaPlayer
+import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import com.proyecto.WalkDog.data.model.RestrictedZone
 import com.proyecto.WalkDog.data.model.User
 import com.proyecto.WalkDog.data.service.LocationService
+import com.proyecto.WalkDog.utils.AudioUploader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val locationService: LocationService,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val audioUploader: AudioUploader  // Aquí inyectamos AudioUploader
 
 ) : ViewModel() {
+
+    private var mediaPlayer: MediaPlayer? = null
 
     private val _userLocation = MutableStateFlow<LatLng?>(null)
     val userLocation: StateFlow<LatLng?> = _userLocation
@@ -88,6 +98,45 @@ class MapViewModel @Inject constructor(
             }
     }
 
+    // Modificamos el método uploadAudio para utilizar AudioUploader
+    fun uploadAudio(uri: Uri, zoneId: String, context: Context) {
+        // Usamos launch para ejecutar la función en una coroutine
+        viewModelScope.launch {
+            try {
+                // Subimos el archivo a Firebase Storage
+                val storageRef = FirebaseStorage.getInstance().reference
+                val audioRef = storageRef.child("restrictedZones/$zoneId/audio/${uri.lastPathSegment}")
+                val uploadTask = audioRef.putFile(uri).await()
+                println("Audio subido exitosamente a Firebase Storage: $uploadTask")
+
+                // Obtenemos la URL de descarga
+                val downloadUrl = audioRef.downloadUrl.await()
+                println("URL de descarga obtenida: $downloadUrl")
+
+                // Llamamos a la función suspendida para actualizar la URL en Firestore
+                updateAudioUrl(zoneId, downloadUrl.toString())
+            } catch (e: Exception) {
+                println("Error al cargar el audio: ${e.message}")
+            }
+        }
+    }
 
 
+
+    private suspend fun updateAudioUrl(zoneId: String, audioUrl: String) {
+        val zoneRef = firestore.collection("restrictedZones").document(zoneId)
+
+        try {
+            // Actualizamos la URL en Firestore
+            zoneRef.update("audioUrl", audioUrl).await()
+            println("URL del audio actualizada exitosamente en Firestore para la zona: $zoneId")
+
+        } catch (e: Exception) {
+            // Manejo de errores
+            println("Error al actualizar la URL del audio en Firestore: ${e.message}")
+        }
+    }
+
+
+    
 }
