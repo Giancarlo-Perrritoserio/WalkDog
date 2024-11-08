@@ -64,7 +64,9 @@ class MapViewModel @Inject constructor(
                     RestrictedZone(
                         id = doc.id,
                         latitude = doc.getDouble("latitude") ?: 0.0,
-                        longitude = doc.getDouble("longitude") ?: 0.0
+                        longitude = doc.getDouble("longitude") ?: 0.0,
+                        name = doc.getString("name") ?: ""  // Asegúrate de obtener el nombre de la zona
+
                     )
                 }
                 _restrictedZones.value = zones
@@ -73,4 +75,19 @@ class MapViewModel @Inject constructor(
                 println("Error al cargar zonas restringidas: ${e.message}")
             }
     }
+
+    fun updateZoneName(zoneId: String, newName: String) {
+        val zoneRef = firestore.collection("restrictedZones").document(zoneId)
+
+        zoneRef.update("name", newName)
+            .addOnSuccessListener {
+                println("Nombre de la zona actualizado exitosamente")
+            }
+            .addOnFailureListener { e ->
+                println("Error al actualizar el nombre de la zona: ${e.message}")
+            }
+    }
+
+
+
 }
