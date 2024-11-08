@@ -1,15 +1,20 @@
 package com.proyecto.WalkDog.ui.login
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.proyecto.WalkDog.data.model.LoginUiState
+import com.proyecto.WalkDog.R
 
 @Composable
 fun LoginScreen(
@@ -19,43 +24,79 @@ fun LoginScreen(
 ) {
     val uiState = viewModel.uiState
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        TextField(
-            value = uiState.email,
-            onValueChange = viewModel::onEmailChange,
-            label = { Text("Email") }
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Fondo de pantalla (opcional)
+        Image(
+            painter = painterResource(id = R.drawable.ic_launcher_foreground), // Aquí puedes usar tu imagen
+            contentDescription = "Background",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        TextField(
-            value = uiState.password,
-            onValueChange = viewModel::onPasswordChange,
-            label = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = {
-            viewModel.onSignInClick(
-                onSuccess = onLoginSuccess,
-                onError = { message -> println("Error: $message") }
+        // Caja para el formulario de login
+        Column(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .fillMaxWidth()
+                .padding(32.dp)
+                .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(16.dp))
+                .padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            // Título
+            Text(
+                text = "Welcome Back!",
+                style = MaterialTheme.typography.headlineSmall, // Cambié a headlineSmall
+                modifier = Modifier.padding(bottom = 16.dp),
+                color = MaterialTheme.colorScheme.primary
             )
-        }) {
-            Text("Login")
-        }
 
-        Spacer(modifier = Modifier.height(8.dp))
+            // Campo de correo electrónico
+            OutlinedTextField(
+                value = uiState.email,
+                onValueChange = viewModel::onEmailChange,
+                label = { Text("Email Address") },
+                modifier = Modifier.fillMaxWidth()
+            )
 
-        TextButton(onClick = onNavigateToRegister) {
-            Text("No account? Register here")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Campo de contraseña
+            OutlinedTextField(
+                value = uiState.password,
+                onValueChange = viewModel::onPasswordChange,
+                label = { Text("Password") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Botón de login
+            Button(
+                onClick = {
+                    viewModel.onSignInClick(
+                        onSuccess = onLoginSuccess,
+                        onError = { message -> println("Error: $message") }
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text("Login", style = MaterialTheme.typography.bodyMedium)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Botón de registro
+            TextButton(onClick = onNavigateToRegister) {
+                Text(
+                    text = "Don't have an account? Register here",
+                    style = MaterialTheme.typography.bodySmall, // Cambié a bodySmall
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 }

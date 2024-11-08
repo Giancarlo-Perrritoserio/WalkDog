@@ -1,6 +1,7 @@
 package com.proyecto.WalkDog.ui.map
 
 import android.content.Context
+import android.location.Location
 import android.media.MediaPlayer
 import android.net.Uri
 import android.util.Log
@@ -137,6 +138,53 @@ class MapViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Función para verificar si el usuario está dentro de una zona restringida
+     * y reproducir el audio si es así.
+     */
+    fun checkRestrictedZone(
+        userLocation: LatLng,
+        restrictedZones: List<RestrictedZone>,
+        context: Context
+    ) {
+        restrictedZones.forEach { zone ->
+            val distance = FloatArray(1)
+            // Usar Location.distanceBetween con las coordenadas correctas
+            Location.distanceBetween(
+                userLocation.latitude,
+                userLocation.longitude,
+                zone.latitude,  // Usar zone.latitude en lugar de zone.location.latitude
+                zone.longitude, // Usar zone.longitude en lugar de zone.location.longitude
+                distance
+            )
 
-    
+            if (distance[0] <= zone.radius) {  // Comparar con zone.radius
+                // Usuario dentro del área de la zona restringida
+                Log.d("MapViewModel", "Usuario dentro de zona restringida: ${zone.name}")
+
+                // Llama a la función para reproducir el audio
+                playAudio(context, zone.audioUrl)
+                return
+            }
+        }
+    }
+
+
+    /**
+     * Reproduce el audio usando la URL de Firebase Storage
+     */
+    private fun playAudio(context: Context, audioUrl: String) {
+        try {
+            // Detener cualquier reproducción previa
+            mediaPlayer?.release()
+            mediaPlayer = MediaPlayer().apply {
+                setDataSource(audioUrl)
+                prepare()  // Prepara el audio para reproducción
+                start()    // Comienza la reproducción
+            }
+        } catch (e: Exception) {
+            Log.e("MapViewModel", "Error reproduciendo audio", e)
+        }
+    }
+
 }

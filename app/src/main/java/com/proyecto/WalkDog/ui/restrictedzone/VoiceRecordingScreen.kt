@@ -37,7 +37,10 @@ fun VoiceRecordingScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Grabar Audio de Voz") })
+            TopAppBar(
+                title = { Text("Grabar Audio de Voz") },
+                colors = TopAppBarDefaults.mediumTopAppBarColors() // Color del TopAppBar
+            )
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) } // Agrega el Snackbar
     ) { padding ->
@@ -49,6 +52,7 @@ fun VoiceRecordingScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            // Botón de grabación
             Button(
                 onClick = {
                     if (!isRecording) {
@@ -60,13 +64,22 @@ fun VoiceRecordingScreen(
                         stopRecording(mediaRecorder)
                         isRecording = false
                     }
-                }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp), // Botón más grande
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary // Color del botón
+                )
             ) {
-                Text(if (isRecording) "Detener Grabación" else "Iniciar Grabación")
+                Text(
+                    text = if (isRecording) "Detener Grabación" else "Iniciar Grabación"
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Botón de reproducción
             Button(
                 onClick = {
                     if (!isPlaying) {
@@ -81,13 +94,22 @@ fun VoiceRecordingScreen(
                         isPlaying = false
                     }
                 },
-                enabled = audioFile != null
+                enabled = audioFile != null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp), // Botón más grande
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary // Color del botón
+                )
             ) {
-                Text(if (isPlaying) "Detener Reproducción" else "Reproducir Audio")
+                Text(
+                    text = if (isPlaying) "Detener Reproducción" else "Reproducir Audio"
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Botón de guardar
             Button(
                 onClick = {
                     audioFile?.let {
@@ -97,9 +119,17 @@ fun VoiceRecordingScreen(
                         }
                     }
                 },
-                enabled = audioFile != null
+                enabled = audioFile != null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp), // Botón más grande
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary // Color del botón
+                )
             ) {
-                Text("Guardar Audio en Local")
+                Text(
+                    text = "Guardar Audio en Local"
+                )
             }
         }
     }

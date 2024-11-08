@@ -114,5 +114,22 @@ dependencies {
     //dependencias parte 3.2
     implementation(libs.firebase.storage.ktx)
 
+    // Jetpack Compose UI
+    implementation(libs.androidx.compose.ui.ui)
+    implementation(libs.material3)
+    implementation(libs.ui.tooling.preview)
+
+    // Coil for image loading (optional if you want to load background images or icons)
+    implementation(libs.coil.compose)
+
+    // Hilt for dependency injection (if using Hilt in your project)
+    implementation(libs.androidx.hilt.navigation.compose)
+
+
+    //asas
+    implementation(libs.androidx.navigation.compose)
+    // Otros complementos necesarios para Jetpack Compose
+    implementation(libs.androidx.foundation)
+    implementation(libs.androidx.material)
 }
 

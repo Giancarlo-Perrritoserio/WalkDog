@@ -6,7 +6,8 @@ data class RestrictedZone(
     val longitude: Double = 0.0,
     val ownerId: String = "", // Se agrega el ownerId para identificar al propietario
     val name: String = "",  // Campo para el nombre de la zona
-    val audioUrl: String = ""  // Campo para la URL del audio
+    val audioUrl: String = "", // Campo para la URL del audio
+    val radius: Float = 0f   // Radio de la zona
 
 
 )
