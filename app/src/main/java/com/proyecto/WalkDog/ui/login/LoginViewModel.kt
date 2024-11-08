@@ -5,7 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.proyecto.WalkDog.data.model.LoginUiState
+import com.proyecto.WalkDog.data.model.User
 import com.proyecto.WalkDog.data.service.AccountService
 import com.proyecto.WalkDog.data.service.LogService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,6 +19,13 @@ class LoginViewModel @Inject constructor(
     private val accountService: AccountService,
     private val logService: LogService
 ) : ViewModel() {
+
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance() // Obtenemos la instancia de FirebaseAuth
+
+    // Esto puede ser un LiveData o State para almacenar el usuario autenticado
+    var user by mutableStateOf<User?>(null)
+        private set
+
     var uiState by mutableStateOf(LoginUiState())
         private set
 
@@ -42,7 +51,11 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 accountService.authenticate(email, password)
-                onSuccess()
+                val currentUser = auth.currentUser // Obtener el usuario autenticado de Firebase
+                currentUser?.let {
+                    user = User(uid = it.uid, email = it.email ?: "", name = it.displayName)
+                    onSuccess() // Aquí pasa lo que necesitas hacer después de iniciar sesión
+                }
             } catch (e: Exception) {
                 onError("Login failed: ${e.message}")
             }

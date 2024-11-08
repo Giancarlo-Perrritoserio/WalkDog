@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
+import com.proyecto.WalkDog.data.model.RestrictedZone
+import com.proyecto.WalkDog.data.model.User
 import com.proyecto.WalkDog.data.service.LocationService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +23,10 @@ class MapViewModel @Inject constructor(
     private val _userLocation = MutableStateFlow<LatLng?>(null)
     val userLocation: StateFlow<LatLng?> = _userLocation
 
+    // StateFlow para manejar la lista de zonas restringidas
+    private val _restrictedZones = MutableStateFlow<List<RestrictedZone>>(emptyList())
+    val restrictedZones: StateFlow<List<RestrictedZone>> = _restrictedZones
+
     fun fetchUserLocation() {
         viewModelScope.launch {
             locationService.getUserLocation { location ->
@@ -30,10 +36,11 @@ class MapViewModel @Inject constructor(
     }
 
     // Método para guardar la zona restringida
-    fun saveRestrictedZone(location: LatLng) {
+    fun saveRestrictedZone(location: LatLng, user: User) {
         val restrictedZone = hashMapOf(
             "latitude" to location.latitude,
-            "longitude" to location.longitude
+            "longitude" to location.longitude,
+            "ownerId" to user.uid // Asigna el ID del propietario al guardar
         )
 
         // Guardamos el punto como "restrictedZone" en Firebase
@@ -46,6 +53,24 @@ class MapViewModel @Inject constructor(
             .addOnFailureListener { e ->
                 // Manejo de errores
                 println("Error al guardar el punto: ${e.message}")
+            }
+    }
+
+    fun fetchRestrictedZones() {
+        firestore.collection("restrictedZones")
+            .get()
+            .addOnSuccessListener { documents ->
+                val zones = documents.map { doc ->
+                    RestrictedZone(
+                        id = doc.id,
+                        latitude = doc.getDouble("latitude") ?: 0.0,
+                        longitude = doc.getDouble("longitude") ?: 0.0
+                    )
+                }
+                _restrictedZones.value = zones
+            }
+            .addOnFailureListener { e ->
+                println("Error al cargar zonas restringidas: ${e.message}")
             }
     }
 }

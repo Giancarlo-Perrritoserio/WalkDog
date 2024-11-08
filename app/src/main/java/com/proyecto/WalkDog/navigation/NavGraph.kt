@@ -8,6 +8,7 @@ import com.proyecto.WalkDog.ui.home.HomeScreen
 import com.proyecto.WalkDog.ui.login.LoginScreen
 import com.proyecto.WalkDog.ui.map.MapScreen
 import com.proyecto.WalkDog.ui.register.RegisterScreen
+import com.proyecto.WalkDog.ui.restrictedzone.RestrictedZonesScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {
@@ -41,6 +42,9 @@ fun NavGraph(navController: NavHostController) {
         }
         composable(route = Screen.Map.route) {
             MapScreen()
+        }
+        composable(route = Screen.RestrictedZones.route) {  // Asegúrate de que Screen.RestrictedZones esté bien definido
+            RestrictedZonesScreen()  // Llama a la pantalla RestrictedZonesScreen
         }
     }
 }

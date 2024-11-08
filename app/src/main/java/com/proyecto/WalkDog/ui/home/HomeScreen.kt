@@ -23,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.google.firebase.auth.FirebaseAuth
+import com.proyecto.WalkDog.data.model.User
 import com.proyecto.WalkDog.navigation.Screen
 import com.proyecto.WalkDog.ui.map.MapViewModel
 
@@ -36,12 +38,24 @@ fun HomeScreen(navController: NavHostController, viewModel: MapViewModel = hiltV
         viewModel.fetchUserLocation() // Obtener ubicación al cargar la pantalla
     }
 
+    // Obtener el usuario autenticado de Firebase
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val user = currentUser?.let {
+        User(
+            uid = it.uid,
+            email = it.email ?: "",
+            name = it.displayName
+        )
+    }
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = {
                 userLocation?.let {
-                    // Guardar el punto como zona restringida
-                    viewModel.saveRestrictedZone(it)
+                    user?.let { u ->
+                        // Guardar el punto como zona restringida, pasando el usuario completo
+                        viewModel.saveRestrictedZone(it, u)
+                    }
                 }
             }) {
                 Icon(Icons.Default.Add, contentDescription = "Agregar zona restringida")
@@ -55,6 +69,10 @@ fun HomeScreen(navController: NavHostController, viewModel: MapViewModel = hiltV
             ) {
                 Button(onClick = { navController.navigate(Screen.Map.route) }) {
                     Text(text = "Ir al Mapa")
+                }
+
+                Button(onClick = { navController.navigate(Screen.RestrictedZones.route) }) {
+                    Text(text = "Ver Zonas Restringidas")
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
