@@ -1,13 +1,27 @@
 package com.proyecto.WalkDog.ui.map
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
+import android.graphics.Color
 import android.location.Location
 import android.media.MediaPlayer
 import android.net.Uri
+import android.os.Looper
 import android.util.Log
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.proyecto.WalkDog.data.model.RestrictedZone
@@ -15,6 +29,7 @@ import com.proyecto.WalkDog.data.model.User
 import com.proyecto.WalkDog.data.service.LocationService
 import com.proyecto.WalkDog.utils.AudioUploader
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -23,51 +38,61 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
-    private val locationService: LocationService,
-    private val firestore: FirebaseFirestore,
-    private val audioUploader: AudioUploader  // Aquí inyectamos AudioUploader
+    private val locationService: LocationService, // Servicio para obtener la ubicación del usuario
+    private val firestore: FirebaseFirestore, // Servicio de Firestore para manejar datos en Firebase
+    private val audioUploader: AudioUploader,  // Aquí inyectamos AudioUploader para manejar la subida de audios
 
 ) : ViewModel() {
 
-    private var mediaPlayer: MediaPlayer? = null
+    private var mediaPlayer: MediaPlayer? = null // Variable para manejar la reproducción de audio
 
-    private val _userLocation = MutableStateFlow<LatLng?>(null)
+    private val _userLocation = MutableStateFlow<LatLng?>(null) // StateFlow para almacenar la ubicación del usuario
     val userLocation: StateFlow<LatLng?> = _userLocation
 
     // StateFlow para manejar la lista de zonas restringidas
     private val _restrictedZones = MutableStateFlow<List<RestrictedZone>>(emptyList())
     val restrictedZones: StateFlow<List<RestrictedZone>> = _restrictedZones
 
-    fun fetchUserLocation() {
+
+    ///modificacion 1.2
+
+    // Método para comenzar a obtener actualizaciones de ubicación en tiempo real
+    fun startLocationUpdates() {
         viewModelScope.launch {
-            locationService.getUserLocation { location ->
-                _userLocation.value = location
+            locationService.startLocationUpdates { location ->
+                location?.let {
+                    _userLocation.value = it // Actualiza la ubicación del usuario en tiempo real
+                }
             }
         }
     }
 
-    // Método para guardar la zona restringida
+    // Detener la actualización de ubicación cuando ya no sea necesario
+    fun stopLocationUpdates() {
+        locationService.stopLocationUpdates() // Detiene la actualización de ubicación en el servicio
+    }
+
+
+    // Método mejorado para guardar una zona restringida en Firestore
     fun saveRestrictedZone(location: LatLng, user: User) {
         val restrictedZone = hashMapOf(
             "latitude" to location.latitude,
             "longitude" to location.longitude,
-            "ownerId" to user.uid // Asigna el ID del propietario al guardar
+            "ownerId" to user.uid
         )
 
-        // Guardamos el punto como "restrictedZone" en Firebase
         firestore.collection("restrictedZones")
             .add(restrictedZone)
             .addOnSuccessListener {
-                // Feedback exitoso al guardar el punto
                 println("Punto restringido guardado exitosamente")
             }
             .addOnFailureListener { e ->
-                // Manejo de errores
                 println("Error al guardar el punto: ${e.message}")
             }
     }
 
-    fun fetchRestrictedZones() {
+    // Nueva función para obtener las zonas restringidas, sin interferir con la ubicación
+    fun getRestrictedZonesFromFirestore() {
         firestore.collection("restrictedZones")
             .get()
             .addOnSuccessListener { documents ->
@@ -76,8 +101,7 @@ class MapViewModel @Inject constructor(
                         id = doc.id,
                         latitude = doc.getDouble("latitude") ?: 0.0,
                         longitude = doc.getDouble("longitude") ?: 0.0,
-                        name = doc.getString("name") ?: ""  // Asegúrate de obtener el nombre de la zona
-
+                        name = doc.getString("name") ?: "Sin nombre"
                     )
                 }
                 _restrictedZones.value = zones
@@ -87,34 +111,76 @@ class MapViewModel @Inject constructor(
             }
     }
 
-    fun updateZoneName(zoneId: String, newName: String) {
-        val zoneRef = firestore.collection("restrictedZones").document(zoneId)
 
-        zoneRef.update("name", newName)
-            .addOnSuccessListener {
-                println("Nombre de la zona actualizado exitosamente")
+
+
+    //fin de modificacion
+
+    // Método para cargar las zonas restringidas desde Firestore
+    fun fetchRestrictedZones() {
+        firestore.collection("restrictedZones")
+            .get()
+            .addOnSuccessListener { documents ->
+                val zones = documents.map { doc ->
+                    RestrictedZone(
+                        id = doc.id,
+                        latitude = doc.getDouble("latitude") ?: 0.0,
+                        longitude = doc.getDouble("longitude") ?: 0.0,
+                        name = doc.getString("name") ?: ""
+                    )
+                }
+                _restrictedZones.value = zones
+
             }
             .addOnFailureListener { e ->
-                println("Error al actualizar el nombre de la zona: ${e.message}")
+                println("Error al cargar zonas restringidas: ${e.message}")
             }
     }
 
+
+    //modificaciones parte 3.1
+    // Actualizar el nombre de la zona
+    fun updateZoneName(zoneId: String, newName: String) {
+        firestore.collection("restrictedZones").document(zoneId)
+            .update("name", newName)
+            .addOnSuccessListener {
+                println("Zona actualizada correctamente")
+            }
+            .addOnFailureListener { e ->
+                println("Error al actualizar la zona: ${e.message}")
+            }
+    }
+
+    // Eliminar la zona
+    fun deleteRestrictedZone(zoneId: String) {
+        firestore.collection("restrictedZones").document(zoneId)
+            .delete()
+            .addOnSuccessListener {
+                println("Zona eliminada correctamente")
+            }
+            .addOnFailureListener { e ->
+                println("Error al eliminar la zona: ${e.message}")
+            }
+    }
+
+    //fin de modificacion
+
+
     // Modificamos el método uploadAudio para utilizar AudioUploader
     fun uploadAudio(uri: Uri, zoneId: String, context: Context) {
-        // Usamos launch para ejecutar la función en una coroutine
         viewModelScope.launch {
             try {
-                // Subimos el archivo a Firebase Storage
+                // Subimos el archivo de audio a Firebase Storage
                 val storageRef = FirebaseStorage.getInstance().reference
                 val audioRef = storageRef.child("restrictedZones/$zoneId/audio/${uri.lastPathSegment}")
-                val uploadTask = audioRef.putFile(uri).await()
+                val uploadTask = audioRef.putFile(uri).await() // Subimos el archivo de audio
                 println("Audio subido exitosamente a Firebase Storage: $uploadTask")
 
-                // Obtenemos la URL de descarga
+                // Obtenemos la URL del archivo de audio en Firebase Storage
                 val downloadUrl = audioRef.downloadUrl.await()
                 println("URL de descarga obtenida: $downloadUrl")
 
-                // Llamamos a la función suspendida para actualizar la URL en Firestore
+                // Actualizamos la URL del audio en Firestore
                 updateAudioUrl(zoneId, downloadUrl.toString())
             } catch (e: Exception) {
                 println("Error al cargar el audio: ${e.message}")
@@ -122,8 +188,7 @@ class MapViewModel @Inject constructor(
         }
     }
 
-
-
+    // Función privada para actualizar la URL del audio en Firestore
     private suspend fun updateAudioUrl(zoneId: String, audioUrl: String) {
         val zoneRef = firestore.collection("restrictedZones").document(zoneId)
 
@@ -133,58 +198,22 @@ class MapViewModel @Inject constructor(
             println("URL del audio actualizada exitosamente en Firestore para la zona: $zoneId")
 
         } catch (e: Exception) {
-            // Manejo de errores
             println("Error al actualizar la URL del audio en Firestore: ${e.message}")
         }
     }
 
-    /**
-     * Función para verificar si el usuario está dentro de una zona restringida
-     * y reproducir el audio si es así.
-     */
-    fun checkRestrictedZone(
-        userLocation: LatLng,
-        restrictedZones: List<RestrictedZone>,
-        context: Context
-    ) {
-        restrictedZones.forEach { zone ->
-            val distance = FloatArray(1)
-            // Usar Location.distanceBetween con las coordenadas correctas
-            Location.distanceBetween(
-                userLocation.latitude,
-                userLocation.longitude,
-                zone.latitude,  // Usar zone.latitude en lugar de zone.location.latitude
-                zone.longitude, // Usar zone.longitude en lugar de zone.location.longitude
-                distance
-            )
-
-            if (distance[0] <= zone.radius) {  // Comparar con zone.radius
-                // Usuario dentro del área de la zona restringida
-                Log.d("MapViewModel", "Usuario dentro de zona restringida: ${zone.name}")
-
-                // Llama a la función para reproducir el audio
-                playAudio(context, zone.audioUrl)
-                return
-            }
-        }
-    }
-
-
-    /**
-     * Reproduce el audio usando la URL de Firebase Storage
-     */
+    // Función para reproducir el audio de la zona restringida
     private fun playAudio(context: Context, audioUrl: String) {
         try {
             // Detener cualquier reproducción previa
             mediaPlayer?.release()
             mediaPlayer = MediaPlayer().apply {
-                setDataSource(audioUrl)
-                prepare()  // Prepara el audio para reproducción
-                start()    // Comienza la reproducción
+                setDataSource(audioUrl) // Establecemos la fuente del audio
+                prepare()  // Preparamos el audio para su reproducción
+                start()    // Comenzamos la reproducción
             }
         } catch (e: Exception) {
-            Log.e("MapViewModel", "Error reproduciendo audio", e)
+            Log.e("MapViewModel", "Error reproduciendo audio", e) // Manejo de errores al reproducir el audio
         }
     }
-
 }

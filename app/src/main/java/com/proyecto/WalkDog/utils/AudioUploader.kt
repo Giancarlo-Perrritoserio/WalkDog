@@ -9,7 +9,9 @@ import javax.inject.Inject
 
 class AudioUploader @Inject constructor() {
 
+    // Referencia principal al almacenamiento de Firebase
     private val storageRef: StorageReference = FirebaseStorage.getInstance().reference
+    // Referencia a Firestore para guardar datos relacionados con las zonas restringidas
     private val db = FirebaseFirestore.getInstance()
 
     /**
@@ -23,26 +25,26 @@ class AudioUploader @Inject constructor() {
         onSuccess: (String) -> Unit,
         onFailure: (Exception) -> Unit
     ) {
-        // Crear una referencia de archivo en Firebase Storage con un nombre único basado en el tiempo
+        // Crear una referencia de archivo en Firebase Storage, con nombre único basado en el tiempo
         val audioRef = storageRef.child("audios/${System.currentTimeMillis()}.mp3")
 
-        // Subir el archivo de audio
+        // Subir el archivo de audio a la referencia especificada en Firebase Storage
         audioRef.putFile(fileUri)
             .addOnSuccessListener {
-                // Obtener la URL de descarga después de una carga exitosa
+                // Al completar la subida, obtener la URL de descarga del archivo
                 audioRef.downloadUrl
                     .addOnSuccessListener { uri ->
-                        val audioUrl = uri.toString()
-                        onSuccess(audioUrl)
+                        val audioUrl = uri.toString()  // Convertir Uri a String para facilidad de uso
+                        onSuccess(audioUrl)  // Llamar a la función de éxito con la URL del archivo
                     }
                     .addOnFailureListener { exception ->
-                        Log.e("AudioUploader", "Error obteniendo URL de descarga", exception)
-                        onFailure(exception)
+                        Log.e("AudioUploader", "Error obteniendo URL de descarga", exception)  // Log para depuración
+                        onFailure(exception)  // Llamar a la función de error si falla la obtención de la URL
                     }
             }
             .addOnFailureListener { exception ->
-                Log.e("AudioUploader", "Error al subir el archivo", exception)
-                onFailure(exception)
+                Log.e("AudioUploader", "Error al subir el archivo", exception)  // Log para errores de subida
+                onFailure(exception)  // Llamar a la función de error si falla la subida
             }
     }
 
@@ -52,15 +54,16 @@ class AudioUploader @Inject constructor() {
      * @param audioUrl URL del audio a guardar en Firestore.
      */
     fun saveAudioUrlToFirestore(zoneId: String, audioUrl: String) {
+        // Referencia al documento de la zona restringida específica en Firestore
         val restrictedZoneRef = db.collection("restricted_zones").document(zoneId)
 
-        // Guardar la URL del audio en el documento de Firestore
+        // Actualizar el campo "audioUrl" en el documento de Firestore con la URL proporcionada
         restrictedZoneRef.update("audioUrl", audioUrl)
             .addOnSuccessListener {
-                Log.d("AudioUploader", "URL del audio guardada exitosamente en Firestore")
+                Log.d("AudioUploader", "URL del audio guardada exitosamente en Firestore")  // Log para confirmar éxito
             }
             .addOnFailureListener { e ->
-                Log.e("AudioUploader", "Error guardando URL del audio en Firestore", e)
+                Log.e("AudioUploader", "Error guardando URL del audio en Firestore", e)  // Log para errores de actualización
             }
     }
 }

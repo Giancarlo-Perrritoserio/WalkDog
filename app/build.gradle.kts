@@ -131,5 +131,12 @@ dependencies {
     // Otros complementos necesarios para Jetpack Compose
     implementation(libs.androidx.foundation)
     implementation(libs.androidx.material)
+
+
+    //Dependencias parte 3.4
+    implementation(libs.androidx.lifecycle.viewmodel.ktx) // versión más reciente posible
+
+    //Dependencias parte 3.5
+    implementation(libs.ui.tooling)// o la versión más reciente que uses
 }
 
