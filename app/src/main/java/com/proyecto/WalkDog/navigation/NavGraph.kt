@@ -45,9 +45,10 @@ fun NavGraph(navController: NavHostController) {
         composable(route = Screen.Map.route) {
             MapScreen()
         }
-        composable(route = Screen.RestrictedZones.route) {  // Asegúrate de que Screen.RestrictedZones esté bien definido
-            RestrictedZonesScreen()  // Llama a la pantalla RestrictedZonesScreen
+        composable(route = Screen.RestrictedZones.route) {
+            RestrictedZonesScreen(navController = navController)  // Pasa navController aquí
         }
+
         composable(route = Screen.VoiceRecording.route) {  // Nueva entrada para VoiceRecordingScreen
             VoiceRecordingScreen(
                 zoneId = "someZoneId", // Pasa el ID de la zona cuando sea necesario

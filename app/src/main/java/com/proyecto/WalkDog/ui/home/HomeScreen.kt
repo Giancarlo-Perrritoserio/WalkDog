@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -105,7 +106,7 @@ fun HomeScreen(navController: NavHostController, viewModel: MapViewModel = hiltV
                         onClick = { navController.navigate(Screen.RestrictedZones.route) }  // Navega a la pantalla de zonas restringidas
                     )
                     BottomNavigationItem(
-                        icon = { Icon(Icons.Default.Home, contentDescription = "Grabar Audio") },
+                        icon = { Icon(Icons.Default.PlayArrow, contentDescription = "Grabar Audio") },
                         selected = false,
                         onClick = { navController.navigate(Screen.VoiceRecording.route) }  // Navega a la pantalla de grabación de audio
                     )

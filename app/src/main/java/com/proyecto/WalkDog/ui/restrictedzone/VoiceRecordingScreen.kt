@@ -4,16 +4,30 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.proyecto.WalkDog.R
 import com.proyecto.WalkDog.ui.map.MapViewModel
 import com.proyecto.WalkDog.utils.AudioPlayer.startPlaying
 import com.proyecto.WalkDog.utils.AudioPlayer.stopPlaying
+import com.proyecto.WalkDog.utils.AudioRecorder
 import com.proyecto.WalkDog.utils.AudioRecorder.requestAudioPermissionAndStartRecording
 import com.proyecto.WalkDog.utils.AudioRecorder.stopRecording
 import kotlinx.coroutines.launch
@@ -33,16 +47,19 @@ fun VoiceRecordingScreen(
     val mediaPlayer = remember { MediaPlayer() }
     val scope = rememberCoroutineScope()
     val localContext = LocalContext.current
-    val snackbarHostState = remember { SnackbarHostState() } // Estado del Snackbar
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Simulación de lista de audios para la vista previa
+    val audioList = remember { mutableStateListOf<File>() }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Grabar Audio de Voz") },
-                colors = TopAppBarDefaults.mediumTopAppBarColors() // Color del TopAppBar
+                title = { Text("Gestión de Audios de Voz") },
+                colors = TopAppBarDefaults.mediumTopAppBarColors()
             )
         },
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) } // Agrega el Snackbar
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -50,87 +67,147 @@ fun VoiceRecordingScreen(
                 .fillMaxSize()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
             // Botón de grabación
             Button(
                 onClick = {
                     if (!isRecording) {
-                        requestAudioPermissionAndStartRecording(localContext, mediaRecorder)?.let {
+                        AudioRecorder.requestAudioPermissionAndStartRecording(localContext, mediaRecorder)?.let {
                             audioFile = it
                             isRecording = true
                         }
                     } else {
-                        stopRecording(mediaRecorder)
+                        AudioRecorder.stopRecording(mediaRecorder)
                         isRecording = false
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp), // Botón más grande
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary // Color del botón
-                )
-            ) {
-                Text(
-                    text = if (isRecording) "Detener Grabación" else "Iniciar Grabación"
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Botón de reproducción
-            Button(
-                onClick = {
-                    if (!isPlaying) {
                         audioFile?.let { file ->
-                            startPlaying(file, mediaPlayer) {
-                                isPlaying = false
-                            }
-                            isPlaying = true
+                            audioList.add(file)  // Agregar el audio grabado a la lista
                         }
-                    } else {
-                        stopPlaying(mediaPlayer)
-                        isPlaying = false
                     }
                 },
-                enabled = audioFile != null,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp), // Botón más grande
+                    .padding(vertical = 8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary // Color del botón
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
             ) {
-                Text(
-                    text = if (isPlaying) "Detener Reproducción" else "Reproducir Audio"
-                )
+                Text(text = if (isRecording) "Detener Grabación" else "Iniciar Grabación")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botón de guardar
-            Button(
-                onClick = {
-                    audioFile?.let {
-                        scope.launch {
-                            // Muestra un mensaje de confirmación en el Snackbar
-                            snackbarHostState.showSnackbar("Audio guardado en almacenamiento local.")
-                        }
-                    }
-                },
-                enabled = audioFile != null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp), // Botón más grande
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary // Color del botón
-                )
+            // Lista de audios grabados
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = "Guardar Audio en Local"
-                )
+                items(audioList) { audio ->
+                    AudioItem(
+                        audio = audio,
+                        mediaPlayer = mediaPlayer,
+                        isPlaying = isPlaying,
+                        onPlayToggle = { isPlaying = !isPlaying },
+                        onRename = { newName ->
+                            val renamedFile = File(audio.parent, "$newName.mp3")
+                            audio.renameTo(renamedFile)
+                            audioList[audioList.indexOf(audio)] = renamedFile
+                        },
+                        onDelete = {
+                            audio.delete()
+                            audioList.remove(audio)
+                        },
+                        onViewLocation = {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Guardado en: ${audio.absolutePath}")
+                            }
+                        }
+                    )
+                }
             }
         }
     }
 }
+
+@Composable
+fun AudioItem(
+    audio: File,
+    mediaPlayer: MediaPlayer,
+    isPlaying: Boolean,
+    onPlayToggle: () -> Unit,
+    onRename: (String) -> Unit,
+    onDelete: () -> Unit,
+    onViewLocation: () -> Unit
+) {
+    var isEditing by remember { mutableStateOf(false) }
+    var newName by remember { mutableStateOf(audio.nameWithoutExtension) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        elevation = CardDefaults.elevatedCardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFAFAFA))
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (isEditing) {
+                    TextField(
+                        value = newName,
+                        onValueChange = { newName = it },
+                        label = { Text("Nombre del Audio") },
+                        modifier = Modifier.weight(1f)
+                    )
+                    IconButton(onClick = {
+                        onRename(newName)
+                        isEditing = false
+                    }) {
+                        Icon(imageVector = Icons.Default.Check, contentDescription = "Guardar Nombre")
+                    }
+                } else {
+                    Text(
+                        text = audio.nameWithoutExtension,
+                        style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black),
+                        modifier = Modifier.weight(1f)
+                    )
+                    IconButton(onClick = { isEditing = true }) {
+                        Icon(imageVector = Icons.Default.Edit, contentDescription = "Editar Nombre")
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                IconButton(onClick = {
+                    if (!isPlaying) {
+                        startPlaying(audio, mediaPlayer) { onPlayToggle() }
+                    } else {
+                        stopPlaying(mediaPlayer)
+                        onPlayToggle()
+                    }
+                }) {
+                    Icon(
+                        imageVector = if (isPlaying) Icons.Default.Clear else Icons.Default.PlayArrow,
+                        contentDescription = if (isPlaying) "Detener" else "Reproducir"
+                    )
+                }
+
+                IconButton(onClick = { onDelete() }) {
+                    Icon(imageVector = Icons.Default.Delete, contentDescription = "Eliminar")
+                }
+
+                IconButton(onClick = { onViewLocation() }) {
+                    Icon(imageVector = Icons.Default.Send, contentDescription = "Ver Ubicación")
+                }
+            }
+        }
+    }
+}
+

@@ -14,14 +14,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -32,13 +39,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.proyecto.WalkDog.data.model.RestrictedZone
+import com.proyecto.WalkDog.navigation.Screen
 import com.proyecto.WalkDog.ui.map.MapViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RestrictedZonesScreen(viewModel: MapViewModel = hiltViewModel()) {
+fun RestrictedZonesScreen(viewModel: MapViewModel = hiltViewModel(), navController: NavController) {
     val restrictedZones by viewModel.restrictedZones.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -53,16 +62,40 @@ fun RestrictedZonesScreen(viewModel: MapViewModel = hiltViewModel()) {
                     containerColor = MaterialTheme.colorScheme.primary
                 )
             )
+        },
+        bottomBar = {
+            // Barra inferior con navegación
+            BottomAppBar(
+                containerColor = MaterialTheme.colorScheme.surface,  // Color de la barra inferior
+                contentColor = MaterialTheme.colorScheme.onSurface  // Color del contenido de la barra inferior
+            ) {
+                BottomNavigation {
+                    BottomNavigationItem(
+                        icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
+                        selected = false,
+                        onClick = { navController.navigate(Screen.Home.route) }  // Navega a la pantalla principal
+                    )
+                    BottomNavigationItem(
+                        icon = { Icon(Icons.Default.Place, contentDescription = "Zonas Restringidas") },
+                        selected = false,
+                        onClick = { navController.navigate(Screen.RestrictedZones.route) }  // Navega a la pantalla de zonas restringidas
+                    )
+                    BottomNavigationItem(
+                        icon = { Icon(Icons.Default.PlayArrow, contentDescription = "Grabar Audio") },
+                        selected = false,
+                        onClick = { navController.navigate(Screen.VoiceRecording.route) }  // Navega a la pantalla de grabación de audio
+                    )
+                }
+            }
         }
     ) { padding ->
         LazyColumn(modifier = Modifier.padding(padding)) {
             items(restrictedZones) { zone ->
-                RestrictedZoneItem(zone)
+                RestrictedZoneItem(zone = zone, viewModel = viewModel)
             }
         }
     }
 }
-
 
 @Composable
 fun RestrictedZoneItem(zone: RestrictedZone, viewModel: MapViewModel = hiltViewModel()) {
@@ -71,7 +104,7 @@ fun RestrictedZoneItem(zone: RestrictedZone, viewModel: MapViewModel = hiltViewM
     var audioUri by remember { mutableStateOf<Uri?>(null) }
     var isUploading by remember { mutableStateOf(false) }
     var isEditing by remember { mutableStateOf(false) }
-    var showMenu by remember { mutableStateOf(false) } // Control del menú desplegable
+    var showMenu by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
     // Configura el selector para archivos de audio mp3
@@ -86,6 +119,13 @@ fun RestrictedZoneItem(zone: RestrictedZone, viewModel: MapViewModel = hiltViewM
                 isUploading = false
             }
         }
+    }
+
+    // Obtener el nombre del archivo de audio asociado a la zona
+    val currentAudioFileName = if (zone.audioUrl.isNotEmpty()) {
+        zone.audioUrl.substringAfterLast("/")
+    } else {
+        null
     }
 
     Card(
@@ -188,29 +228,86 @@ fun RestrictedZoneItem(zone: RestrictedZone, viewModel: MapViewModel = hiltViewM
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Estado de carga de audio
+            // Estado de carga de audio y UI para audio seleccionado
             if (isUploading) {
-                Text(
-                    text = "Subiendo audio...",
-                    color = Color.Gray,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            } else if (audioUri != null) {
-                Text(
-                    text = "Audio seleccionado: ${audioUri.toString()}",
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
+                // Mostrar un indicador de carga mientras el audio se está subiendo
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Subiendo audio...",
+                        color = Color.Gray,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            } else {
+                // Mostrar el nombre del audio asociado a la zona si ya existe
+                currentAudioFileName?.let {
+                    Text(
+                        text = "Audio: $it",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
 
-            // Mostrar URL del audio si ya está disponible
-            if (zone.audioUrl.isNotEmpty()) {
-                Text(
-                    text = "Audio URL: ${zone.audioUrl}",
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.bodySmall
-                )
+                // Mostrar opciones si un nuevo audio fue seleccionado
+                if (audioUri != null) {
+                    val selectedAudioName = audioUri!!.lastPathSegment ?: "Audio seleccionado"
+
+                    Text(
+                        text = "Nuevo audio: $selectedAudioName",
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Botones para guardar o cancelar la selección del audio
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Button(
+                            onClick = {
+                                viewModel.saveAudio(audioUri, context) // Llama a saveAudio del viewModel
+                                audioUri = null // Reinicia el audioUri después de guardar
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = "Guardar Audio",
+                                tint = Color.White
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(text = "Guardar")
+                        }
+
+                        OutlinedButton(
+                            onClick = {
+                                audioUri = null // Cancela la selección del audio
+                            },
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = Color.Transparent
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Clear,
+                                contentDescription = "Cancelar",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(text = "Cancelar", color = MaterialTheme.colorScheme.error)
+                        }
+                    }
+                }
             }
         }
     }
 }
+

@@ -202,18 +202,12 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    // Función para reproducir el audio de la zona restringida
-    private fun playAudio(context: Context, audioUrl: String) {
-        try {
-            // Detener cualquier reproducción previa
-            mediaPlayer?.release()
-            mediaPlayer = MediaPlayer().apply {
-                setDataSource(audioUrl) // Establecemos la fuente del audio
-                prepare()  // Preparamos el audio para su reproducción
-                start()    // Comenzamos la reproducción
-            }
-        } catch (e: Exception) {
-            Log.e("MapViewModel", "Error reproduciendo audio", e) // Manejo de errores al reproducir el audio
+    //Agregado
+    fun saveAudio(audioUri: Uri?, context: Context) {
+        val savedPath = audioUploader.saveAudioToLocalDirectory(audioUri, context)
+        savedPath?.let {
+            // Aquí puedes realizar acciones adicionales, como mostrar un mensaje de confirmación
+            println("Audio guardado exitosamente en: $it")
         }
     }
 }
