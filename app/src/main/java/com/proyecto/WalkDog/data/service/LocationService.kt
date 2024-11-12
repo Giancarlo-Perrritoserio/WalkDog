@@ -58,4 +58,5 @@ class LocationService @Inject constructor(@ApplicationContext private val contex
         // Detener las actualizaciones de ubicación utilizando el mismo LocationCallback que se usó al iniciar
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
+
 }

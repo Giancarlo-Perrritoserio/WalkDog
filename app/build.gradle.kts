@@ -138,5 +138,12 @@ dependencies {
 
     //Dependencias parte 3.5
     implementation(libs.ui.tooling)// o la versión más reciente que uses
+
+    //Dependencias parte 4.0
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
+        // For interop APIs with Material 2
+    implementation(libs.androidx.glance.material)
+
 }
 
