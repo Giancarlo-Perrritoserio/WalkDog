@@ -23,6 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.proyecto.WalkDog.R
 import com.proyecto.WalkDog.data.model.RestrictedZone
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun MapScreen(
@@ -38,6 +39,8 @@ fun MapScreen(
 
     // Estado para controlar la posición de la cámara del mapa
     val cameraPositionState = rememberCameraPositionState()
+
+    val deviceLocation by viewModel.deviceLocation.collectAsState()
 
     // Llamamos a `getRestrictedZonesFromFirestore` para cargar las zonas restringidas al inicio
     LaunchedEffect(Unit) {
@@ -55,6 +58,9 @@ fun MapScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.getDeviceLocationUpdates()
+    }
     // Efecto lanzado al iniciar la pantalla para verificar permisos
     LaunchedEffect(Unit) {
         when (PackageManager.PERMISSION_GRANTED) {
@@ -107,6 +113,26 @@ fun MapScreen(
                 )
 
             }
+
+            // 3. Mostrar la ubicación de la mascota en el mapa con un ícono personalizado
+            deviceLocation?.let {
+                Marker(
+                    state = rememberMarkerState(position = it),
+                    title = "Ubicación de la Mascota",
+                    icon = BitmapDescriptorFactory.fromBitmap(
+                        Bitmap.createScaledBitmap(
+                            BitmapFactory.decodeResource(context.resources, R.drawable.mascotaprueba2),
+                            100, 100, false // Redimensiona el ícono al mismo tamaño (100x100 píxeles)
+                        )
+                    )
+                )
+                // Mueve la cámara a la ubicación de la mascota cuando cambia
+                LaunchedEffect(it) {
+                    cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(it, 15f))
+                }
+            }
+
+
         }
 
         // 3. Mostrar un mensaje de "Obteniendo ubicación..." si `userLocation` es nulo

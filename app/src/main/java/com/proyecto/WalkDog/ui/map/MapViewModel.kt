@@ -32,6 +32,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -53,6 +54,9 @@ class MapViewModel @Inject constructor(
     private val _restrictedZones = MutableStateFlow<List<RestrictedZone>>(emptyList())
     val restrictedZones: StateFlow<List<RestrictedZone>> = _restrictedZones
 
+    // StateFlow para almacenar la última ubicación del dispositivo ESP32
+    private val _deviceLocation = MutableStateFlow<LatLng?>(null) // Mutable flujo para mantener la ubicación actualizada
+    val deviceLocation: StateFlow<LatLng?> = _deviceLocation.asStateFlow() // Exposición pública inmutable
 
     ///modificacion 1.2
 
@@ -209,6 +213,31 @@ class MapViewModel @Inject constructor(
             // Aquí puedes realizar acciones adicionales, como mostrar un mensaje de confirmación
             println("Audio guardado exitosamente en: $it")
         }
+    }
+
+    // Función para obtener datos de ubicación en tiempo real desde Firestore
+    fun getDeviceLocationUpdates() {
+        firestore.collection("deviceLocations").document("esp32-location")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("MapViewModel", "Error al obtener los datos de ubicación del ESP32: ${error.message}")
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    snapshot.data?.let { data ->
+                        val latitude = data["latitude"] as? Double ?: 0.0
+                        val longitude = data["longitude"] as? Double ?: 0.0
+
+                        // Actualiza el flujo con la nueva ubicación
+                        _deviceLocation.value = LatLng(latitude, longitude)
+
+                        Log.d("MapViewModel", "Nueva ubicación ESP32: lat=$latitude, lng=$longitude")
+                    }
+                } else {
+                    Log.w("MapViewModel", "Documento de ubicación ESP32 no encontrado o vacío.")
+                }
+            }
     }
 
 }
