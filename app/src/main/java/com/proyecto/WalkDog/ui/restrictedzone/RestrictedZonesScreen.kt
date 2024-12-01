@@ -1,11 +1,8 @@
 package com.proyecto.WalkDog.ui.restrictedzone
 
-import android.content.Context
 import android.net.Uri
-import android.os.Environment
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -39,7 +36,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.proyecto.WalkDog.data.model.RestrictedZone
 import com.proyecto.WalkDog.navigation.Screen
 import com.proyecto.WalkDog.ui.map.MapViewModel
@@ -47,7 +43,10 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RestrictedZonesScreen(viewModel: MapViewModel = hiltViewModel(), navController: NavController) {
+fun RestrictedZonesScreen(
+    viewModel: MapViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier
+) {
     val restrictedZones by viewModel.restrictedZones.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -63,31 +62,6 @@ fun RestrictedZonesScreen(viewModel: MapViewModel = hiltViewModel(), navControll
                 )
             )
         },
-        bottomBar = {
-            // Barra inferior con navegación
-            BottomAppBar(
-                containerColor = MaterialTheme.colorScheme.surface,  // Color de la barra inferior
-                contentColor = MaterialTheme.colorScheme.onSurface  // Color del contenido de la barra inferior
-            ) {
-                BottomNavigation {
-                    BottomNavigationItem(
-                        icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
-                        selected = false,
-                        onClick = { navController.navigate(Screen.Home.route) }  // Navega a la pantalla principal
-                    )
-                    BottomNavigationItem(
-                        icon = { Icon(Icons.Default.Place, contentDescription = "Zonas Restringidas") },
-                        selected = false,
-                        onClick = { navController.navigate(Screen.RestrictedZones.route) }  // Navega a la pantalla de zonas restringidas
-                    )
-                    BottomNavigationItem(
-                        icon = { Icon(Icons.Default.PlayArrow, contentDescription = "Grabar Audio") },
-                        selected = false,
-                        onClick = { navController.navigate(Screen.VoiceRecording.route) }  // Navega a la pantalla de grabación de audio
-                    )
-                }
-            }
-        }
     ) { padding ->
         LazyColumn(modifier = Modifier.padding(padding)) {
             items(restrictedZones) { zone ->

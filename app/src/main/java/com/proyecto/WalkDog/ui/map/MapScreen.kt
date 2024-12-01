@@ -27,7 +27,8 @@ import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun MapScreen(
-    viewModel: MapViewModel = hiltViewModel()  // Usa el ViewModel `MapViewModel` inyectado con Hilt
+    viewModel: MapViewModel = hiltViewModel(), // Usa el ViewModel `MapViewModel` inyectado con Hilt
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
 

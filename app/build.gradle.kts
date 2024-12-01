@@ -54,6 +54,7 @@ android {
 
 dependencies {
 
+    testImplementation(libs.junit.jupiter)
     val mapsComposeVersion = "4.4.1"
 
     implementation(libs.androidx.core.ktx)
@@ -145,5 +146,13 @@ dependencies {
         // For interop APIs with Material 2
     implementation(libs.androidx.glance.material)
 
+
+
+    //pruebas unitarias
+    // MockK para mocks
+    testImplementation(libs.mockk)
+
+    // Coroutines testing
+    testImplementation(libs.kotlinx.coroutines.test)
 }
 

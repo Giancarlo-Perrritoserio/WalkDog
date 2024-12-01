@@ -38,7 +38,8 @@ import java.io.File
 fun VoiceRecordingScreen(
     zoneId: String,
     context: Context,
-    viewModel: MapViewModel = hiltViewModel()
+    viewModel: MapViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier
 ) {
     var isRecording by remember { mutableStateOf(false) }
     var isPlaying by remember { mutableStateOf(false) }

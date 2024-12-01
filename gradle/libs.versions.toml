@@ -17,6 +17,7 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 kotlinxCoroutinesAndroid = "1.7.3"
 kotlinxCoroutinesCore = "1.7.3"
+kotlinxCoroutinesTest = "1.7.3"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.9.3"
 composeBom = "2024.10.01"
@@ -33,6 +34,7 @@ mapsWidgetsComposeVersion = "2.7.0"
 material = "1.12.0"
 material3 = "1.3.1"
 materialVersion = "1.7.5"
+mockk = "1.13.7"
 navigationCompose = "2.8.3"
 playServicesLocation = "21.3.0"
 playServicesLocationVersion = "21.3.0"
@@ -41,6 +43,7 @@ ui = "1.0.0"
 uiTooling = "1.7.5"
 uiToolingPreview = "1.7.5"
 uiVersion = "1.7.5"
+junitJupiter = "5.8.1"
 
 [libraries]
 androidx-compose-ui-ui = { module = "androidx.compose.ui:ui", version.ref = "uiVersion" }
@@ -77,6 +80,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
 maps-compose-utils = { module = "com.google.maps.android:maps-compose-utils", version.ref = "mapsComposeUtils" }
 maps-compose-v2 = { module = "com.google.maps.android:maps-compose-v2", version.ref = "mapsComposeV2" }
@@ -89,12 +93,14 @@ maps-widgets-compose = { module = "com.google.maps.android:maps-widgets-compose"
 maps-widgets-compose-v270 = { module = "com.google.maps.android:maps-widgets-compose", version.ref = "mapsWidgetsComposeVersion" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 play-services-location-v2101 = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocationVersion" }
 play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
 ui = { module = "com.some.dependency:ui", version.ref = "ui" }
 ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "uiTooling" }
 ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreview" }
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
