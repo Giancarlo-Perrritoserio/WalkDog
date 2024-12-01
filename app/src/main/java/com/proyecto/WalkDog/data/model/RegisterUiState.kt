@@ -8,6 +8,10 @@ data class RegisterUiState(
     val password: String = "",           // Contraseña ingresada por el usuario.
     val confirmPassword: String = "",    // Confirmación de la contraseña ingresada para verificar coincidencia.
 
+    val name: String = "",               // Nombre ingresado por el usuario.
+    val lastName: String = "",           // Apellido ingresado por el usuario.
+    val username: String = "",           // Nombre de usuario o apodo ingresado por el usuario.
+
     val isLoading: Boolean = false,      // Indica si la aplicación está en proceso de registro.
     // Muestra un indicador de carga mientras se realiza la acción de registro.
 

@@ -1,12 +1,12 @@
 package com.proyecto.WalkDog.ui.login
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -23,6 +23,8 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit
 ) {
     val uiState = viewModel.uiState
+    var showSnackbar by remember { mutableStateOf(false) }
+    var snackbarMessage by remember { mutableStateOf("") }
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Fondo de pantalla (opcional)
@@ -77,8 +79,15 @@ fun LoginScreen(
             Button(
                 onClick = {
                     viewModel.onSignInClick(
-                        onSuccess = onLoginSuccess,
-                        onError = { message -> println("Error: $message") }
+                        onSuccess = {
+                            onLoginSuccess() // Iniciar el flujo de éxito
+                            snackbarMessage = "Login Successful!"
+                            showSnackbar = true
+                        },
+                        onError = { message ->
+                            snackbarMessage = message // Mostrar el error
+                            showSnackbar = true
+                        }
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -96,6 +105,17 @@ fun LoginScreen(
                     style = MaterialTheme.typography.bodySmall, // Cambié a bodySmall
                     color = MaterialTheme.colorScheme.primary
                 )
+            }
+        }
+
+        // Mostrar Snackbar para éxito o error
+        if (showSnackbar) {
+            Snackbar(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
+            ) {
+                Text(text = snackbarMessage)
             }
         }
     }

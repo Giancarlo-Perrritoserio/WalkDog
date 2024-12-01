@@ -43,6 +43,7 @@ class MapViewModel @Inject constructor(
     private val firestore: FirebaseFirestore, // Servicio de Firestore para manejar datos en Firebase
     private val audioUploader: AudioUploader,  // Aquí inyectamos AudioUploader para manejar la subida de audios
 
+
 ) : ViewModel() {
 
     private var mediaPlayer: MediaPlayer? = null // Variable para manejar la reproducción de audio
@@ -74,25 +75,6 @@ class MapViewModel @Inject constructor(
     // Detener la actualización de ubicación cuando ya no sea necesario
     fun stopLocationUpdates() {
         locationService.stopLocationUpdates() // Detiene la actualización de ubicación en el servicio
-    }
-
-
-    // Método mejorado para guardar una zona restringida en Firestore
-    fun saveRestrictedZone(location: LatLng, user: User) {
-        val restrictedZone = hashMapOf(
-            "latitude" to location.latitude,
-            "longitude" to location.longitude,
-            "ownerId" to user.uid
-        )
-
-        firestore.collection("restrictedZones")
-            .add(restrictedZone)
-            .addOnSuccessListener {
-                println("Punto restringido guardado exitosamente")
-            }
-            .addOnFailureListener { e ->
-                println("Error al guardar el punto: ${e.message}")
-            }
     }
 
     // Nueva función para obtener las zonas restringidas, sin interferir con la ubicación

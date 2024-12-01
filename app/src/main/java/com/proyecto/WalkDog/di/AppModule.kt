@@ -2,6 +2,7 @@ package com.proyecto.WalkDog.di
 
 import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.proyecto.WalkDog.data.service.AccountService
 import com.proyecto.WalkDog.data.service.AccountServiceImpl
 import com.proyecto.WalkDog.data.service.LogService
@@ -25,13 +26,20 @@ object AppModule {
         return FirebaseAuth.getInstance() // Devuelve una instancia de FirebaseAuth configurada
     }
 
-    // Proveedor de AccountService, que depende de FirebaseAuth. El objeto AccountServiceImpl es el encargado de la implementación.
     @Provides
-    @Singleton // Asegura que solo haya una instancia de AccountService en toda la aplicación
+    @Singleton
+    fun provideFirebaseFirestore(): FirebaseFirestore {
+        return FirebaseFirestore.getInstance() // Devuelve la instancia de Firestore
+    }
+
+    // El proveedor de AccountService
+    @Provides
+    @Singleton
     fun provideAccountService(
-        firebaseAuth: FirebaseAuth // Inyecta FirebaseAuth, que ya se proporcionó en el método anterior
+        firebaseAuth: FirebaseAuth, // FirebaseAuth ya está inyectado
+        firestore: FirebaseFirestore // Ahora también se inyecta Firestore
     ): AccountService {
-        return AccountServiceImpl(firebaseAuth) // Retorna una instancia de AccountServiceImpl que usa FirebaseAuth
+        return AccountServiceImpl(firebaseAuth, firestore) // Se pasa firestore a la implementación
     }
 
     // Proveedor de LogService, que se encarga de registrar eventos, errores e información.
@@ -49,4 +57,6 @@ object AppModule {
     ): LocationService {
         return LocationService(context) // Retorna una instancia de LocationService usando el contexto de la aplicación
     }
+
+
 }

@@ -1,5 +1,6 @@
 package com.proyecto.WalkDog.di
 
+import com.google.firebase.firestore.FirebaseFirestore
 import com.proyecto.WalkDog.data.service.AccountService
 import com.proyecto.WalkDog.data.service.LogService
 import com.proyecto.WalkDog.ui.login.LoginViewModel
@@ -24,13 +25,14 @@ object ViewModelModule {
         return LoginViewModel(accountService, logService) // Crea y devuelve el ViewModel de Login
     }
 
-    // Proporciona la instancia de RegisterViewModel, que maneja la lógica de la vista de registro de usuario.
+    // Proveedor de RegisterViewModel
     @Provides
-    @ViewModelScoped // Esto asegura que el ViewModel sea único para cada ViewModel en la aplicación y se conserve durante el ciclo de vida del ViewModel.
+    @ViewModelScoped // Asegura que el ViewModel se mantenga durante el ciclo de vida
     fun provideRegisterViewModel(
-        accountService: AccountService, // Inyecta el servicio de autenticación de usuarios
-        logService: LogService // Inyecta el servicio para registrar eventos y errores
+        accountService: AccountService,  // Inyecta el servicio de autenticación
+        logService: LogService,         // Inyecta el servicio de logs
+        firestore: FirebaseFirestore    // Agrega FirebaseFirestore como parámetro
     ): RegisterViewModel {
-        return RegisterViewModel(accountService, logService) // Crea y devuelve el ViewModel de Registro
+        return RegisterViewModel(accountService, logService, firestore) // Pasa firestore al constructor
     }
 }

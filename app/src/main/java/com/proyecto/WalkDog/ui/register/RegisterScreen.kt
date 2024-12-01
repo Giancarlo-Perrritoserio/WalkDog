@@ -48,7 +48,7 @@ fun RegisterScreen(
             // Título
             Text(
                 text = "Create Your Account",
-                style = MaterialTheme.typography.headlineSmall, // Cambié a headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(bottom = 16.dp),
                 color = MaterialTheme.colorScheme.primary
             )
@@ -69,6 +69,36 @@ fun RegisterScreen(
                 onValueChange = viewModel::onPasswordChange,
                 label = { Text("Password") },
                 visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Campo de nombre
+            OutlinedTextField(
+                value = uiState.name,
+                onValueChange = viewModel::onNameChange,
+                label = { Text("First Name") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Campo de apellido
+            OutlinedTextField(
+                value = uiState.lastName,
+                onValueChange = viewModel::onLastNameChange,
+                label = { Text("Last Name") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Campo de nombre de usuario
+            OutlinedTextField(
+                value = uiState.username,
+                onValueChange = viewModel::onUsernameChange,
+                label = { Text("Username") },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -94,11 +124,10 @@ fun RegisterScreen(
             TextButton(onClick = onNavigateToLogin) {
                 Text(
                     text = "Already have an account? Login here",
-                    style = MaterialTheme.typography.bodySmall, // Cambié a bodySmall
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary
                 )
             }
         }
     }
 }
-
