@@ -1,5 +1,6 @@
 package com.proyecto.WalkDog.ui.profile
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,95 +34,99 @@ fun ProfileScreen(
         viewModel.getUserData()
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(top = 56.dp)  // Margen para no estar tapado por la TopAppBar
     ) {
-        Text(
-            text = if (isEditing) "Edit Profile" else "Perfil de Usuario",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        // Mostrar o editar nombre completo
-        if (isEditing) {
-            OutlinedTextField(
-                value = uiState.name,  // Asegúrate de que uiState.name sea un String
-                onValueChange = { viewModel.onNameChange(it) },
-                label = { Text("First Name") },
-                modifier = Modifier.fillMaxWidth()
-            )
-        } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(30.dp)
+        ) {
             Text(
-                text = "Nombre: ${uiState.name} ${uiState.lastName}",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 8.dp)
+                text = if (isEditing) "" else "",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(bottom = 16.dp)
             )
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Mostrar o editar apellido
-        if (isEditing) {
-            OutlinedTextField(
-                value = uiState.lastName,
-                onValueChange = { viewModel.onLastNameChange(it) },
-                label = { Text("Last Name") },
-                modifier = Modifier.fillMaxWidth()
-            )
-        } else {
-            Text(
-                text = "Apellido: ${uiState.lastName}",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Mostrar o editar nombre de usuario
-        if (isEditing) {
-            OutlinedTextField(
-                value = uiState.username,
-                onValueChange = { viewModel.onUsernameChange(it) },
-                label = { Text("Username") },
-                modifier = Modifier.fillMaxWidth()
-            )
-        } else {
-            Text(
-                text = "Nombre de usuario: ${uiState.username}",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Mostrar un botón para cambiar entre edición y vista
-        if (isEditing) {
-            // Botón para guardar cambios
-            Button(
-                onClick = {
-                    viewModel.saveUserData(
-                        onSuccess = {
-                            onProfileUpdated()  // Acción después de actualizar
-                            isEditing = false    // Deshabilitar el modo de edición
-                        },
-                        onError = onError
-                    )
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Save Changes")
+            // Mostrar o editar nombre completo
+            if (isEditing) {
+                OutlinedTextField(
+                    value = uiState.name,
+                    onValueChange = { viewModel.onNameChange(it) },
+                    label = { Text("First Name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else {
+                Text(
+                    text = "Nombre: ${uiState.name} ${uiState.lastName}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
             }
-        } else {
-            // Botón para entrar en modo de edición
-            Button(
-                onClick = { isEditing = true },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Edit Profile")
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Mostrar o editar apellido
+            if (isEditing) {
+                OutlinedTextField(
+                    value = uiState.lastName,
+                    onValueChange = { viewModel.onLastNameChange(it) },
+                    label = { Text("Last Name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else {
+                Text(
+                    text = "Apellido: ${uiState.lastName}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Mostrar o editar nombre de usuario
+            if (isEditing) {
+                OutlinedTextField(
+                    value = uiState.username,
+                    onValueChange = { viewModel.onUsernameChange(it) },
+                    label = { Text("Username") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else {
+                Text(
+                    text = "Nombre de usuario: ${uiState.username}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Mostrar un botón para cambiar entre edición y vista
+            if (isEditing) {
+                Button(
+                    onClick = {
+                        viewModel.saveUserData(
+                            onSuccess = {
+                                onProfileUpdated()
+                                isEditing = false
+                            },
+                            onError = onError
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Save Changes")
+                }
+            } else {
+                Button(
+                    onClick = { isEditing = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Edit Profile")
+                }
             }
         }
     }

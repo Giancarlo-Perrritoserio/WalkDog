@@ -32,6 +32,9 @@ fun AppTopBar(
     title: String,
     navController: NavHostController
 ) {
+    // Estado para controlar la visibilidad del menú desplegable
+    var expanded by remember { mutableStateOf(false) }
+
     TopAppBar(
         title = { Text(title) },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
@@ -40,27 +43,58 @@ fun AppTopBar(
             actionIconContentColor = Color.White // Color de los íconos en blanco
         ),
         actions = {
+            // Ícono de perfil
             TopBarIcon(
                 icon = Icons.Default.AccountCircle,
                 description = "Perfil",
                 onClick = { navController.navigate(Screen.Profile.route) }
             )
+
+            // Ícono de configuración (abre el menú desplegable)
             TopBarIcon(
                 icon = Icons.Default.Settings,
                 description = "Configuración",
-                onClick = { navController.navigate(Screen.Settings.route) }
+                onClick = { expanded = !expanded }
             )
+
+            // Menú desplegable de configuración
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                // Opción de Perfil de Mascotas
+                DropdownMenuItem(
+                    text = { Text("Perfil de Mascotas") },
+                    onClick = {
+                        navController.navigate(Screen.PetPerfile.route)  // Navegación directa
+                        expanded = false
+                    }
+                )
+
+                // Opción de Notificaciones
+                DropdownMenuItem(
+                    text = { Text("Notificaciones") },
+                    onClick = { }
+                )
+
+                // Opción de Cuenta
+                DropdownMenuItem(
+                    text = { Text("Cerrar Cuenta") },
+                    onClick = { }
+                )
+            }
         }
     )
 }
 
-// Función para crear los íconos de la TopBar
+// Función auxiliar para los íconos de la barra superior
 @Composable
 fun TopBarIcon(icon: ImageVector, description: String, onClick: () -> Unit) {
     IconButton(onClick = onClick) {
         Icon(imageVector = icon, contentDescription = description)
     }
 }
+
 
 @Composable
 fun AppBottomBar(navController: NavHostController) {

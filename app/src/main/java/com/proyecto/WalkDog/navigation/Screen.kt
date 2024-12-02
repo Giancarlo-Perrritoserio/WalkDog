@@ -9,4 +9,6 @@ sealed class Screen(val route: String) {
     data object VoiceRecording : Screen("voice_recording") // Nueva ruta para grabar audio
     data object Settings : Screen("settings")
     data object Profile : Screen("profile")
+    data object PetPerfile : Screen("Pet_Perfile")
+
 }

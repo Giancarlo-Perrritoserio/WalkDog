@@ -26,6 +26,7 @@ import com.proyecto.WalkDog.ui.configurations.SettingsScreen
 import com.proyecto.WalkDog.ui.home.HomeScreen
 import com.proyecto.WalkDog.ui.login.LoginScreen
 import com.proyecto.WalkDog.ui.map.MapScreen
+import com.proyecto.WalkDog.ui.petProfiles.ProfilePetsScreen
 import com.proyecto.WalkDog.ui.profile.ProfileScreen
 import com.proyecto.WalkDog.ui.register.RegisterScreen
 import com.proyecto.WalkDog.ui.restrictedzone.RestrictedZonesScreen
@@ -139,6 +140,33 @@ fun NavGraph(navController: NavHostController, user: User) {
                 RestrictedZonesScreen(modifier = Modifier.padding(innerPadding))
             }
         }
+
+        composable(route = Screen.PetPerfile.route) {
+            Scaffold(
+                topBar = { AppTopBar(title = "PetPerfile", navController = navController) },
+                bottomBar = { AppBottomBar(navController) },
+                floatingActionButton = {
+                    FloatingActionButtonWithOptions(
+                        navController = navController, // Se pasa el navController
+                        viewModel = viewModel, // Se pasa el viewModel (supongo que tienes acceso al viewModel en el contexto)
+                        user = user, // Se pasa el usuario (también debería estar disponible en el contexto)
+                        onSaveZone = {
+                            // Aquí verificamos si la ubicación está disponible antes de guardar la zona
+                            if (isLocationAvailable && userLocation != null) {
+                                viewModel.saveRestrictedZone(user)  // Guarda la zona usando la ubicación obtenida
+                            } else {
+                                // Si la ubicación no está disponible, mostramos un mensaje
+                                Toast.makeText(navController.context, "Esperando ubicación... Intenta de nuevo", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    )
+                }
+            ) { innerPadding ->
+                ProfilePetsScreen(navController = navController, modifier = Modifier.padding(innerPadding)
+                )
+            }
+        }
+
         composable(route = Screen.VoiceRecording.route) {
             Scaffold(
                 topBar = { AppTopBar(title = "Voice Recording", navController = navController) },
@@ -191,6 +219,32 @@ fun NavGraph(navController: NavHostController, user: User) {
 
         composable(route = Screen.Settings.route) {
             SettingsScreen(navController)  // Dirige a la pantalla de configuración
+        }
+
+        composable(route = Screen.Settings.route) {
+            Scaffold(
+                topBar = { AppTopBar(title = "PetPerfile", navController = navController) },
+                bottomBar = { AppBottomBar(navController) },
+                floatingActionButton = {
+                    FloatingActionButtonWithOptions(
+                        navController = navController, // Se pasa el navController
+                        viewModel = viewModel, // Se pasa el viewModel (supongo que tienes acceso al viewModel en el contexto)
+                        user = user, // Se pasa el usuario (también debería estar disponible en el contexto)
+                        onSaveZone = {
+                            // Aquí verificamos si la ubicación está disponible antes de guardar la zona
+                            if (isLocationAvailable && userLocation != null) {
+                                viewModel.saveRestrictedZone(user)  // Guarda la zona usando la ubicación obtenida
+                            } else {
+                                // Si la ubicación no está disponible, mostramos un mensaje
+                                Toast.makeText(navController.context, "Esperando ubicación... Intenta de nuevo", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    )
+                }
+            ) { innerPadding ->
+                SettingsScreen(navController = navController, modifier = Modifier.padding(innerPadding)
+                )
+            }
         }
     }
 }
