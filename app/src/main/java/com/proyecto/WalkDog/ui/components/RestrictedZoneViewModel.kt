@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.auth.FirebaseAuth
 import com.proyecto.WalkDog.data.model.User
 import com.proyecto.WalkDog.data.service.LocationService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class RestrictedZoneViewModel @Inject constructor(
     private val locationService: LocationService,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val auth: FirebaseAuth  // Inyectamos FirebaseAuth para obtener el usuario logeado
 ) : ViewModel() {
 
     private val _userLocation = MutableStateFlow<LatLng?>(null)
@@ -39,15 +41,17 @@ class RestrictedZoneViewModel @Inject constructor(
     }
 
     // Guardar zona restringida en Firestore
-    fun saveRestrictedZone(user: User) {
+    fun saveRestrictedZone() {
         val currentLocation = _userLocation.value
-        if (currentLocation != null) {
+        val user = auth.currentUser  // Obtener el usuario logeado desde FirebaseAuth
+
+        if (currentLocation != null && user != null) {
             val restrictedZone = hashMapOf(
                 "latitude" to currentLocation.latitude,
                 "longitude" to currentLocation.longitude,
-                "ownerId" to user.uid,
+                "ownerId" to user.uid,  // Usar el UID del usuario logeado
                 "name" to "Zona Restringida",
-                "audioUrl" to ""
+                "audioUrl" to ""  // Puedes agregar un URL de audio si lo deseas
             )
 
             firestore.collection("restrictedZones")
@@ -59,7 +63,7 @@ class RestrictedZoneViewModel @Inject constructor(
                     Log.e("RestrictedZone", "Error al guardar el punto: ${e.message}")
                 }
         } else {
-            Log.e("RestrictedZone", "Ubicación no disponible")
+            Log.e("RestrictedZone", "Ubicación o usuario no disponible")
         }
     }
 }

@@ -78,6 +78,12 @@ fun HomeScreen(
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
+
+                // Agregar el componente de guardar zona
+                SaveRestrictedZoneScreen(
+                    viewModel = hiltViewModel(),
+                    navController = navController
+                ) // Aquí agregamos la pantalla para guardar la zona
             }
         }
     }

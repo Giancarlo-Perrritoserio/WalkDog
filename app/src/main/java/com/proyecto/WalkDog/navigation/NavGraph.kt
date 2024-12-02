@@ -79,7 +79,7 @@ fun NavGraph(navController: NavHostController, user: User) {
                         onSaveZone = {
                             // Aquí verificamos si la ubicación está disponible antes de guardar la zona
                             if (isLocationAvailable && userLocation != null) {
-                                viewModel.saveRestrictedZone(user)  // Guarda la zona usando la ubicación obtenida
+                                viewModel.saveRestrictedZone()  // Guarda la zona usando la ubicación obtenida
                             } else {
                                 // Si la ubicación no está disponible, mostramos un mensaje
                                 Toast.makeText(navController.context, "Esperando ubicación... Intenta de nuevo", Toast.LENGTH_SHORT).show()
@@ -103,7 +103,7 @@ fun NavGraph(navController: NavHostController, user: User) {
                         onSaveZone = {
                             // Aquí verificamos si la ubicación está disponible antes de guardar la zona
                             if (isLocationAvailable && userLocation != null) {
-                                viewModel.saveRestrictedZone(user)  // Guarda la zona usando la ubicación obtenida
+                                viewModel.saveRestrictedZone()  // Guarda la zona usando la ubicación obtenida
                             } else {
                                 // Si la ubicación no está disponible, mostramos un mensaje
                                 Toast.makeText(navController.context, "Esperando ubicación... Intenta de nuevo", Toast.LENGTH_SHORT).show()
@@ -128,7 +128,7 @@ fun NavGraph(navController: NavHostController, user: User) {
                         onSaveZone = {
                             // Aquí verificamos si la ubicación está disponible antes de guardar la zona
                             if (isLocationAvailable && userLocation != null) {
-                                viewModel.saveRestrictedZone(user)  // Guarda la zona usando la ubicación obtenida
+                                viewModel.saveRestrictedZone()  // Guarda la zona usando la ubicación obtenida
                             } else {
                                 // Si la ubicación no está disponible, mostramos un mensaje
                                 Toast.makeText(navController.context, "Esperando ubicación... Intenta de nuevo", Toast.LENGTH_SHORT).show()
@@ -153,7 +153,7 @@ fun NavGraph(navController: NavHostController, user: User) {
                         onSaveZone = {
                             // Aquí verificamos si la ubicación está disponible antes de guardar la zona
                             if (isLocationAvailable && userLocation != null) {
-                                viewModel.saveRestrictedZone(user)  // Guarda la zona usando la ubicación obtenida
+                                viewModel.saveRestrictedZone()  // Guarda la zona usando la ubicación obtenida
                             } else {
                                 // Si la ubicación no está disponible, mostramos un mensaje
                                 Toast.makeText(navController.context, "Esperando ubicación... Intenta de nuevo", Toast.LENGTH_SHORT).show()
@@ -179,7 +179,7 @@ fun NavGraph(navController: NavHostController, user: User) {
                         onSaveZone = {
                             // Aquí verificamos si la ubicación está disponible antes de guardar la zona
                             if (isLocationAvailable && userLocation != null) {
-                                viewModel.saveRestrictedZone(user)  // Guarda la zona usando la ubicación obtenida
+                                viewModel.saveRestrictedZone()  // Guarda la zona usando la ubicación obtenida
                             } else {
                                 // Si la ubicación no está disponible, mostramos un mensaje
                                 Toast.makeText(navController.context, "Esperando ubicación... Intenta de nuevo", Toast.LENGTH_SHORT).show()
@@ -233,7 +233,7 @@ fun NavGraph(navController: NavHostController, user: User) {
                         onSaveZone = {
                             // Aquí verificamos si la ubicación está disponible antes de guardar la zona
                             if (isLocationAvailable && userLocation != null) {
-                                viewModel.saveRestrictedZone(user)  // Guarda la zona usando la ubicación obtenida
+                                viewModel.saveRestrictedZone()  // Guarda la zona usando la ubicación obtenida
                             } else {
                                 // Si la ubicación no está disponible, mostramos un mensaje
                                 Toast.makeText(navController.context, "Esperando ubicación... Intenta de nuevo", Toast.LENGTH_SHORT).show()
