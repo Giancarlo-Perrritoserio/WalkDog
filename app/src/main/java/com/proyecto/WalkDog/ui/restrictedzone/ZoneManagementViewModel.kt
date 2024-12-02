@@ -25,6 +25,13 @@ class ZoneManagementViewModel @Inject constructor(
     private val _restrictedZones = MutableStateFlow<List<RestrictedZone>>(emptyList())
     val restrictedZones: StateFlow<List<RestrictedZone>> = _restrictedZones
 
+    private val _errorState = MutableStateFlow<String?>(null) // Estado de error
+    val errorState: StateFlow<String?> = _errorState
+
+    private val _loadingState = MutableStateFlow(false) // Estado de carga
+    val loadingState: StateFlow<Boolean> = _loadingState
+
+
     // Obtener el ID del usuario logueado
     private val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
@@ -41,6 +48,7 @@ class ZoneManagementViewModel @Inject constructor(
                             latitude = doc.getDouble("latitude") ?: 0.0,
                             longitude = doc.getDouble("longitude") ?: 0.0,
                             name = doc.getString("name") ?: "",
+                            description = doc.getString("description") ?: "", // Incluye el campo de descripción
                             audioUrl = doc.getString("audioUrl") ?: "" // Incluye este campo si lo necesitas en la UI
                         )
                     }
@@ -50,6 +58,19 @@ class ZoneManagementViewModel @Inject constructor(
                     println("Error al cargar zonas restringidas: ${e.message}")
                 }
         } ?: println("No hay usuario logueado.")
+    }
+
+    // Actualizar la descripción de la zona
+    fun updateZoneDetails(zoneId: String, newName: String, newDescription: String) {
+        val zoneRef = firestore.collection("restrictedZones").document(zoneId)
+
+        zoneRef.update("name", newName, "description", newDescription)
+            .addOnSuccessListener {
+                println("Zona actualizada correctamente")
+            }
+            .addOnFailureListener { e ->
+                println("Error al actualizar la zona: ${e.message}")
+            }
     }
 
 
@@ -106,4 +127,5 @@ class ZoneManagementViewModel @Inject constructor(
                 println("Error al eliminar la zona: ${e.message}")
             }
     }
+
 }

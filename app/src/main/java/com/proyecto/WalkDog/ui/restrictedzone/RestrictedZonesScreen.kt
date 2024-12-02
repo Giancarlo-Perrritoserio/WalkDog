@@ -97,11 +97,11 @@ fun RestrictedZonesScreen(
 
 
 
-//Función para cada ítem de la lista
 @Composable
 fun RestrictedZoneItem(zone: RestrictedZone, viewModel: ZoneManagementViewModel) {
     val context = LocalContext.current
     var name by remember { mutableStateOf(zone.name) }
+    var description by remember { mutableStateOf(zone.description ?: "") } // Nueva variable para la descripción
     var isEditing by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
 
@@ -117,15 +117,21 @@ fun RestrictedZoneItem(zone: RestrictedZone, viewModel: ZoneManagementViewModel)
             modifier = Modifier.padding(16.dp)
         ) {
             ZoneHeader(zone.id)  // Encabezado de la zona
-            ZoneNameSection(     // Sección del nombre
+
+            // Pasar tanto el nombre como la descripción a la función de edición
+            ZoneNameSection(
                 name = name,
+                description = description, // Añadir descripción aquí
                 isEditing = isEditing,
                 onNameChange = { newName -> name = newName },
-                onSaveName = {
-                    viewModel.updateZoneName(zone.id, name)
+                onDescriptionChange = { newDesc -> description = newDesc }, // Función para actualizar la descripción
+                onSave = {
+                    // Llamar a la función actualizada del ViewModel
+                    viewModel.updateZoneDetails(zone.id, name, description)
                     isEditing = false
                 }
             )
+
             ZoneMenu(            // Menú desplegable
                 showMenu = showMenu,
                 onMenuToggle = { showMenu = !showMenu },
@@ -135,6 +141,7 @@ fun RestrictedZoneItem(zone: RestrictedZone, viewModel: ZoneManagementViewModel)
         }
     }
 }
+
 
 
 
@@ -154,32 +161,54 @@ fun ZoneHeader(zoneId: String) {
 @Composable
 fun ZoneNameSection(
     name: String,
+    description: String,  // Asegúrate de pasar la descripción
     isEditing: Boolean,
     onNameChange: (String) -> Unit,
-    onSaveName: () -> Unit
+    onDescriptionChange: (String) -> Unit,  // Nueva función para actualizar la descripción
+    onSave: () -> Unit
 ) {
     if (isEditing) {
+        // Sección para el nombre de la zona
         TextField(
             value = name,
             onValueChange = onNameChange,
             label = { Text("Nuevo nombre de la zona") },
             modifier = Modifier.fillMaxWidth()
         )
+
         Spacer(modifier = Modifier.height(8.dp))
-        IconButton(onClick = onSaveName) {
+
+        // Sección para la descripción de la zona
+        TextField(
+            value = description,
+            onValueChange = onDescriptionChange,  // Cambiar la descripción
+            label = { Text("Descripción de la zona") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        IconButton(onClick = onSave) {
             Icon(
                 imageVector = Icons.Default.Check,
-                contentDescription = "Guardar Nombre",
+                contentDescription = "Guardar cambios",
                 tint = MaterialTheme.colorScheme.primary
             )
         }
     } else {
+        // Mostrar el nombre y la descripción cuando no estamos en modo de edición
         Text(
             text = name,
             style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
         )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
+        )
     }
 }
+
 
 
 //Menú desplegable

@@ -22,6 +22,8 @@ data class RestrictedZone(
     val audioUrl: String = "",        // URL del archivo de audio asociado a la zona.
     // Permite almacenar un mensaje grabado para reproducirse si la mascota entra en la zona.
 
-    val radius: Float = 0f            // Radio de la zona restringida en metros.
+    val radius: Float = 0f,            // Radio de la zona restringida en metros.
     // Define el tamaño del área en torno al punto central en el cual la restricción es activa.
+
+    val description: String = ""
 )
