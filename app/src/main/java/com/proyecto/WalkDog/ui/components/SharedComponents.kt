@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
+import com.google.firebase.auth.FirebaseAuth
 import com.proyecto.WalkDog.data.model.User
 import com.proyecto.WalkDog.navigation.Screen
 
@@ -80,7 +81,16 @@ fun AppTopBar(
                 // Opción de Cuenta
                 DropdownMenuItem(
                     text = { Text("Cerrar Cuenta") },
-                    onClick = { }
+                    onClick = {
+                        // Cerrar sesión de Firebase (si estás usando Firebase Authentication)
+                        FirebaseAuth.getInstance().signOut()
+
+                        // Navegar a la pantalla de Login
+                        navController.navigate(Screen.Login.route) {
+                            // Opcional: evitar que el usuario regrese a la pantalla anterior
+                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                        }
+                    }
                 )
             }
         }

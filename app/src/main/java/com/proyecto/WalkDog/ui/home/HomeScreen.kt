@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -24,6 +26,8 @@ import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 import com.proyecto.WalkDog.data.model.User
 import com.proyecto.WalkDog.navigation.Screen
+import com.proyecto.WalkDog.ui.components.AppBottomBar
+import com.proyecto.WalkDog.ui.components.AppTopBar
 import com.proyecto.WalkDog.ui.map.MapViewModel
 import com.proyecto.WalkDog.ui.map.VistaPreviaMap
 
@@ -50,42 +54,42 @@ fun HomeScreen(
     }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = { AppTopBar(title = "Home", navController = navController) },  // Asegura la barra superior
+        bottomBar = { AppBottomBar(navController) }                             // Asegura la barra inferior
     ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(top = 56.dp)  // Margen para no estar tapado por el TopAppBar
+                .padding(top = 8.dp, bottom = 8.dp)  // Espacio extra para evitar solapamiento
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())  // Desplazamiento vertical
+                    .padding(vertical = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
                 // Llamada al Composable para mostrar el saludo y bienvenida
                 UserGreeting(user = user)
 
-                // Vista previa del mapa que es ahora interactiva
                 VistaPreviaMap(
-                    location = userLocation,
-                    onClick = {
-                        // Verificar si el onClick está siendo llamado
-                        println("Vista previa del mapa clickeada, redirigiendo...")
-                        // Redirige al mapa completo cuando se toque la vista previa
-                        navController.navigate(Screen.Map.route)
-                    }
-                )
+                     location = userLocation,
+                     onClick = {
+                         println("Vista previa del mapa clickeada, redirigiendo...")
+                         navController.navigate(Screen.Map.route)
+                     }
+                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Agregar el componente de guardar zona
-                SaveRestrictedZoneScreen(
-                    viewModel = hiltViewModel(),
-                    navController = navController
-                ) // Aquí agregamos la pantalla para guardar la zona
+                 SaveRestrictedZoneScreen(
+                     viewModel = hiltViewModel(),
+                     navController = navController
+                 )
             }
         }
     }
 }
-

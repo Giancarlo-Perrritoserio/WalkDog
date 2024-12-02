@@ -122,24 +122,27 @@ fun NavGraph(navController: NavHostController, user: User) {
                 bottomBar = { AppBottomBar(navController) },
                 floatingActionButton = {
                     FloatingActionButtonWithOptions(
-                        navController = navController, // Se pasa el navController
-                        viewModel = viewModel, // Se pasa el viewModel (supongo que tienes acceso al viewModel en el contexto)
-                        user = user, // Se pasa el usuario (también debería estar disponible en el contexto)
+                        navController = navController,
+                        viewModel = viewModel, // Asegúrate de que viewModel esté disponible aquí
+                        user = user,           // Asegúrate de que user esté definido o pasado correctamente
                         onSaveZone = {
-                            // Aquí verificamos si la ubicación está disponible antes de guardar la zona
                             if (isLocationAvailable && userLocation != null) {
-                                viewModel.saveRestrictedZone()  // Guarda la zona usando la ubicación obtenida
+                                viewModel.saveRestrictedZone()
                             } else {
-                                // Si la ubicación no está disponible, mostramos un mensaje
                                 Toast.makeText(navController.context, "Esperando ubicación... Intenta de nuevo", Toast.LENGTH_SHORT).show()
                             }
                         }
                     )
                 }
             ) { innerPadding ->
-                RestrictedZonesScreen(modifier = Modifier.padding(innerPadding))
+                // Aquí se pasa el navController a RestrictedZonesScreen
+                RestrictedZonesScreen(
+                    navController = navController,  // Se pasa el navController
+                    modifier = Modifier.padding(innerPadding)
+                )
             }
         }
+
 
         composable(route = Screen.PetPerfile.route) {
             Scaffold(

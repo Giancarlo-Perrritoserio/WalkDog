@@ -26,13 +26,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 import com.proyecto.WalkDog.data.model.RestrictedZone
 
-//Función Principal
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RestrictedZonesScreen(
+    navController: NavHostController, // Agregar navController como parámetro
     viewModel: ZoneManagementViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
@@ -87,7 +89,11 @@ fun RestrictedZonesScreen(
             } else {
                 LazyColumn(modifier = modifier.padding(padding)) {
                     items(restrictedZones) { zone ->
-                        RestrictedZoneItem(zone = zone, viewModel = viewModel)
+                        RestrictedZoneItem(
+                            zone = zone,
+                            viewModel = viewModel,
+                            navController = navController  // Pasar navController aquí
+                        )
                     }
                 }
             }
@@ -97,11 +103,16 @@ fun RestrictedZonesScreen(
 
 
 
+
 @Composable
-fun RestrictedZoneItem(zone: RestrictedZone, viewModel: ZoneManagementViewModel) {
+fun RestrictedZoneItem(
+    zone: RestrictedZone,
+    viewModel: ZoneManagementViewModel,
+    navController: NavHostController  // Agregar el navController como parámetro
+) {
     val context = LocalContext.current
     var name by remember { mutableStateOf(zone.name) }
-    var description by remember { mutableStateOf(zone.description ?: "") } // Nueva variable para la descripción
+    var description by remember { mutableStateOf(zone.description ?: "") }
     var isEditing by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
 
@@ -110,7 +121,11 @@ fun RestrictedZoneItem(zone: RestrictedZone, viewModel: ZoneManagementViewModel)
             .fillMaxWidth()
             .padding(16.dp)
             .clip(RoundedCornerShape(16.dp))
-            .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f), RoundedCornerShape(16.dp)),
+            .border(
+                1.dp,
+                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+                RoundedCornerShape(16.dp)
+            ),
         elevation = CardDefaults.elevatedCardElevation(8.dp)
     ) {
         Column(
@@ -118,30 +133,30 @@ fun RestrictedZoneItem(zone: RestrictedZone, viewModel: ZoneManagementViewModel)
         ) {
             ZoneHeader(zone.id)  // Encabezado de la zona
 
-            // Pasar tanto el nombre como la descripción a la función de edición
+            // Sección para editar el nombre y la descripción
             ZoneNameSection(
                 name = name,
-                description = description, // Añadir descripción aquí
+                description = description,
                 isEditing = isEditing,
                 onNameChange = { newName -> name = newName },
-                onDescriptionChange = { newDesc -> description = newDesc }, // Función para actualizar la descripción
+                onDescriptionChange = { newDesc -> description = newDesc },
                 onSave = {
-                    // Llamar a la función actualizada del ViewModel
                     viewModel.updateZoneDetails(zone.id, name, description)
                     isEditing = false
                 }
             )
 
-            ZoneMenu(            // Menú desplegable
+            // Menú desplegable actualizado con el navController
+            ZoneMenu(
                 showMenu = showMenu,
                 onMenuToggle = { showMenu = !showMenu },
                 viewModel = viewModel,
-                zone = zone
+                zone = zone,
+                navController = navController  // Pasar el navController
             )
         }
     }
 }
-
 
 
 
@@ -217,8 +232,12 @@ fun ZoneMenu(
     showMenu: Boolean,
     onMenuToggle: () -> Unit,
     viewModel: ZoneManagementViewModel,
-    zone: RestrictedZone
+    zone: RestrictedZone,
+    navController: NavController  // Por si necesitas navegar a una pantalla específica
 ) {
+    var showEditDialog by remember { mutableStateOf(false) }  // Estado para el diálogo de edición
+
+    // Botón para abrir el menú desplegable
     IconButton(onClick = onMenuToggle) {
         Icon(
             imageVector = Icons.Default.MoreVert,
@@ -226,27 +245,82 @@ fun ZoneMenu(
         )
     }
 
+    // Menú desplegable con opciones
     DropdownMenu(
         expanded = showMenu,
         onDismissRequest = { onMenuToggle() }
     ) {
         DropdownMenuItem(
-            onClick = { /* Lógica de edición aquí */ },
+            onClick = {
+                showEditDialog = true  // Abre el diálogo de edición
+                onMenuToggle()
+            },
             text = { Text("Editar nombre") },
             leadingIcon = { Icon(Icons.Default.Edit, contentDescription = "Editar") }
         )
         DropdownMenuItem(
-            onClick = { /* Abrir selector de audio */ },
+            onClick = {
+                // Lógica para abrir el selector de audio (depende de la implementación)
+                onMenuToggle()
+                // Llamada al selector de audio o navegación a una pantalla de selección
+            },
             text = { Text("Seleccionar audio") },
             leadingIcon = { Icon(Icons.Default.PlayArrow, contentDescription = "Seleccionar audio") }
         )
         DropdownMenuItem(
-            onClick = { viewModel.deleteRestrictedZone(zone.id) },
+            onClick = {
+                viewModel.deleteRestrictedZone(zone.id)  // Elimina la zona
+                onMenuToggle()
+            },
             text = { Text("Eliminar zona") },
             leadingIcon = { Icon(Icons.Default.Delete, contentDescription = "Eliminar") }
         )
     }
+
+    // Diálogo para editar el nombre de la zona
+    if (showEditDialog) {
+        EditZoneDialog(
+            zone = zone,
+            onDismiss = { showEditDialog = false },
+            onConfirm = { newName ->
+                viewModel.updateZoneName(zone.id, newName)
+                showEditDialog = false  // Cierra el diálogo después de la confirmación
+            }
+        )
+    }
 }
 
+@Composable
+fun EditZoneDialog(
+    zone: RestrictedZone,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    var newName by remember { mutableStateOf(zone.name) }  // Estado para el nuevo nombre
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Editar nombre de la zona") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = newName,
+                    onValueChange = { newName = it },
+                    label = { Text("Nuevo nombre") }
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onConfirm(newName) }) {
+                Text("Guardar")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
 
 

@@ -32,7 +32,6 @@ fun SaveRestrictedZoneScreen(
     viewModel: RestrictedZoneViewModel = hiltViewModel(),
     navController: NavHostController
 ) {
-    // Obtener la ubicación actual del usuario desde el ViewModel
     val userLocation by viewModel.userLocation.collectAsState()
     val isLocationAvailable = userLocation != null
 
@@ -48,61 +47,57 @@ fun SaveRestrictedZoneScreen(
         }
     }
 
-    Scaffold(
-        content = { innerPadding ->
+    // Aquí eliminamos el Scaffold y solo dejamos el contenido
+    Column(
+        modifier = Modifier
+            .padding(16.dp)  // Espaciado alrededor del contenido
+            .fillMaxWidth()  // Se asegura de que el contenedor no se expanda innecesariamente
+    ) {
+        Text(
+            text = "Guardar una nueva zona restringida.",
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        // Contenedor con título y botón para guardar el punto
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(4.dp, shape = MaterialTheme.shapes.medium) // Aplicar sombra
+                .clip(MaterialTheme.shapes.medium) // Recortar la sombra
+        ) {
             Column(
                 modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize()
                     .padding(16.dp)
+                    .fillMaxWidth()
+                    .background(Color.White) // Fondo blanco para la tarjeta
             ) {
                 Text(
-                    text = "Guardar una nueva zona restringida.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    text = "Guardar Punto",
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
 
-                // Contenedor con título y botón para guardar el punto
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(4.dp, shape = MaterialTheme.shapes.medium) // Aplicar sombra en lugar de elevation
-                        .clip(MaterialTheme.shapes.medium) // Usar el mismo shape para recortar la sombra
+                // Botón para guardar el punto
+                Button(
+                    onClick = { saveZone() },
+                    enabled = isLocationAvailable,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth()
-                            .background(Color.White) // Fondo blanco para la tarjeta
-                    ) {
-                        Text(
-                            text = "Guardar Punto",
-                            style = MaterialTheme.typography.labelLarge,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
+                    Text(text = "Guardar Zona")
+                }
 
-                        // Botón para guardar el punto
-                        Button(
-                            onClick = { saveZone() },
-                            enabled = isLocationAvailable,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(text = "Guardar Zona")
-                        }
-
-                        if (!isLocationAvailable) {
-                            Text(
-                                text = "Esperando ubicación...",
-                                color = Color.Red,
-                                style = MaterialTheme.typography.bodySmall,
-                                modifier = Modifier.padding(top = 8.dp)
-                            )
-                        }
-                    }
+                if (!isLocationAvailable) {
+                    Text(
+                        text = "Esperando ubicación...",
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
             }
         }
-    )
+    }
 
     // Iniciar actualizaciones de ubicación cuando la pantalla está activa
     LaunchedEffect(Unit) {
@@ -116,4 +111,3 @@ fun SaveRestrictedZoneScreen(
         }
     }
 }
-
